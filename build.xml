@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Rados Java Bindings" default="build" xmlns:artifact="antlib:org.apache.maven.artifact.ant">
+    <property environment="env"/>
+    <property file="build.properties" />
+    <property name="src" value="rados-java-${version}" />
+    <property name="src.file" value="target/${src}.tar.gz" />
+    <property name="javac.debug" value="off" />
+    <property name="jar" value="rados-${version}" />
+    <property name="jar.file" value="target/${jar}.jar" />
+    <property name="jar.docfile" value="target/${jar}-javadoc.jar" />
+    <property name="jar.srcfile" value="target/${jar}-sources.jar" />
+
+    <path id="compile.classpath">
+        <fileset dir="${jar.dir}">
+            <include name="jna.jar" />
+        </fileset>
+    </path>
+
+    <target name="init">
+        <mkdir dir="target/classes" />
+        <mkdir dir="target/testclasses" />
+        <mkdir dir="target/cache" />
+    </target>
+
+    <target name="docs" depends="build">
+        <mkdir dir="target/javadoc" />
+        <javadoc sourcepath="src/main/java" classpathref="compile.classpath" destdir="target/javadoc" />
+        <jar destfile="${jar.docfile}" basedir="target/javadoc" />
+    </target>
+
+    <target name="clean">
+        <delete dir="target" />
+    </target>
+
+    <target name="jar" depends="build">
+        <jar destfile="${jar.file}" basedir="target/classes" />
+    </target>
+
+    <target name="build" depends="init">
+        <depend srcdir="src/main/java"
+                destdir="target/classes"
+                cache="target/cache"
+                closure="true" />
+        <javac srcdir="src/main/java" includeAntRuntime="false" debug="${javac.debug}" classpathref="compile.classpath" includes="**/*.java" destdir="target/classes" />
+    </target>
+
+    <target name="src" depends="init">
+        <mkdir dir="target/rados-java-${version}" />
+        <copy todir="target/rados-java-${version}">
+            <fileset dir="." excludes="target/**,.git/**,.gitignore,.*,.*/**" />
+        </copy>
+        <tar basedir="target" includes="rados-java-${version}/**" destfile="${src.file}" compression="gzip" />
+        <jar destfile="${jar.srcfile}" basedir="src/main/java" />
+    </target>
+</project>
