@@ -41,7 +41,7 @@
                 destdir="target/classes"
                 cache="target/cache"
                 closure="true" />
-        <javac srcdir="src/main/java" includeAntRuntime="false" debug="${javac.debug}" classpathref="compile.classpath" includes="**/*.java" destdir="target/classes" />
+        <javac srcdir="src/main/java" includeAntRuntime="false" target="1.6" source="1.6" debug="${javac.debug}" classpathref="compile.classpath" includes="**/*.java" destdir="target/classes" />
     </target>
 
     <target name="src" depends="init">
