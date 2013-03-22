@@ -84,6 +84,14 @@ public class Rados {
         rados.rados_pool_create(this.clusterPtr.getPointer(0), name);
     }
 
+    public void poolCreate(String name, long auid) {
+        rados.rados_pool_create_with_auid(this.clusterPtr.getPointer(0), name, auid);
+    }
+
+    public void poolCreate(String name, long auid, long crushrule) {
+        rados.rados_pool_create_with_all(this.clusterPtr.getPointer(0), name, auid, crushrule);
+    }
+
     protected void finalize() throws Throwable {
         rados.rados_shutdown(this.clusterPtr.getPointer(0));
         super.finalize();
