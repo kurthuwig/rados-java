@@ -24,21 +24,21 @@ public class Rados {
     public void confReadFile(File file) throws RadosException {
         int r = rados.rados_conf_read_file(this.clusterPtr.getPointer(0), file.getAbsolutePath());
         if (r < 0) {
-            throw new RadosException("Failed reading configuration file " + file.getAbsolutePath());
+            throw new RadosException("Failed reading configuration file " + file.getAbsolutePath(), r);
         }
     }
 
     public void confSet(String option, String value) throws RadosException {
         int r = rados.rados_conf_set(this.clusterPtr.getPointer(0), option, value);
         if (r < 0) {
-            throw new RadosException("Could not set configuration option " + option);
+            throw new RadosException("Could not set configuration option " + option, r);
         }
     }
 
     public void connect() throws RadosException {
         int r = rados.rados_connect(this.clusterPtr.getPointer(0));
         if (r < 0) {
-            throw new RadosException("The connection to the Ceph cluster failed");
+            throw new RadosException("The connection to the Ceph cluster failed", r);
         }
     }
 
