@@ -22,7 +22,7 @@
         <mkdir dir="target/cache" />
     </target>
 
-    <target name="docs" depends="build">
+    <target name="doc" depends="build">
         <mkdir dir="target/javadoc" />
         <javadoc sourcepath="src/main/java" classpathref="compile.classpath" destdir="target/javadoc" />
         <jar destfile="${jar.docfile}" basedir="target/javadoc" />
