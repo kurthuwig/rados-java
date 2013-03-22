@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="Rados Java Bindings" default="build" xmlns:artifact="antlib:org.apache.maven.artifact.ant">
+<project name="Rados Java Bindings" default="jar" xmlns:artifact="antlib:org.apache.maven.artifact.ant">
     <property environment="env"/>
     <property file="build.properties" />
     <property name="src" value="rados-java-${version}" />
