@@ -132,6 +132,18 @@ public class Rados {
     }
 
     /**
+     * Get the cluster stats
+     *
+     * @return RadosClusterStructure
+     * @throws RadosException
+     */
+    public RadosClusterStructure clusterStat() throws RadosException {
+        RadosClusterStructure result = new RadosClusterStructure();
+        int r = rados.rados_cluster_stat(this.clusterPtr.getPointer(0), result);
+        return result;
+    }
+
+    /**
      * Create a RADOS pool
      *
      * @param name

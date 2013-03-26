@@ -14,6 +14,7 @@ package com.ceph;
 
 import com.ceph.Rados;
 import com.ceph.RadosException;
+import com.ceph.RadosClusterStructure;
 import java.io.File;
 import junit.framework.*;
 
@@ -85,6 +86,21 @@ public final class TestRados extends TestCase {
             r.confReadFile(new File(this.configFile));
             r.connect();
             assertNotNull("The fsid returned was null", r.getFsid());
+        } catch (RadosException e) {
+            fail(e.getMessage() + ": " + e.getReturnValue());
+        }
+    }
+
+    public void testClusterStat() {
+        try {
+            Rados r = new Rados(this.id);
+            r.confReadFile(new File(this.configFile));
+            r.connect();
+            RadosClusterStructure stat = r.clusterStat();
+            assertTrue("Cluster size wasn't greater than 0", stat.kb > 0);
+            assertTrue("KB used was not 0 or greater", stat.kb_used >= 0);
+            assertTrue("KB available was not greater than 0", stat.kb_avail > 0);
+            assertTrue("Number of objects was not 0 or greater", stat.num_objects >= 0);
         } catch (RadosException e) {
             fail(e.getMessage() + ": " + e.getReturnValue());
         }
