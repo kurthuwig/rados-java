@@ -16,11 +16,14 @@
         </fileset>
     </path>
 
-    <target name="init">
-        <mkdir dir="target/classes" />
-        <mkdir dir="target/testclasses" />
-        <mkdir dir="target/cache" />
-    </target>
+    <path id="test.classpath">
+        <fileset dir="${jar.dir}">
+            <include name="jna.jar" />
+            <include name="junit.jar" />
+        </fileset>
+        <pathelement location="target/classes" />
+        <pathelement location="target/testclasses" />
+    </path>
 
     <target name="doc" depends="build">
         <mkdir dir="target/javadoc" />
@@ -32,8 +35,10 @@
         <delete dir="target" />
     </target>
 
-    <target name="jar" depends="build">
-        <jar destfile="${jar.file}" basedir="target/classes" />
+    <target name="init">
+        <mkdir dir="target/classes" />
+        <mkdir dir="target/testclasses" />
+        <mkdir dir="target/cache" />
     </target>
 
     <target name="build" depends="init">
@@ -42,6 +47,31 @@
                 cache="target/cache"
                 closure="true" />
         <javac srcdir="src/main/java" includeAntRuntime="false" target="${java.target}" source="${java.source}" debug="${javac.debug}" classpathref="compile.classpath" includes="**/*.java" destdir="target/classes" />
+    </target>
+
+    <target name="buildtests" depends="build">
+        <depend srcdir="src/test/java"
+                destdir="target/testclasses"
+                cache="target/cache"
+                closure="true" />
+        <javac srcdir="src/test/java" debug="${javac.debug}" includes="**/*.java" classpathref="test.classpath" destdir="target/testclasses" includeAntRuntime="false" />
+    </target>
+
+    <target name="test" depends="buildtests">
+        <junit printsummary="yes" showoutput="yes" fork="yes" forkMode="perBatch">
+            <sysproperty key="jna.nosys" value="true"/>
+            <formatter type="plain" />
+            <classpath refid="test.classpath" />
+            <batchtest todir="target">
+                <fileset dir="src/test/java">
+                    <include name="**/Test*.java" />
+                </fileset>
+            </batchtest>
+        </junit>
+    </target>
+
+    <target name="jar" depends="build">
+        <jar destfile="${jar.file}" basedir="target/classes" />
     </target>
 
     <target name="src" depends="init">

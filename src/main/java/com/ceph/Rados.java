@@ -62,6 +62,25 @@ public class Rados {
     }
 
     /**
+     * Retrieve a RADOS configuration option's value
+     *
+     * @param option
+     *            the name of the option
+     * @return
+     *            the value of the option
+     * @throws RadosException
+     */
+    public String confGet(String option) throws RadosException {
+        int len = 256;
+        Pointer p = new Memory(len);
+        int r = rados.rados_conf_get(this.clusterPtr.getPointer(0), option, p, len);
+        if (r < 0) {
+            throw new RadosException("Unable to retrieve the value of configuration option " + option, r);
+        }
+        return p.getString(0);
+    }
+
+    /**
      * Connect to the Ceph cluster
      *
      * @throws RadosException

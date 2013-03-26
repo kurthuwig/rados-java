@@ -13,7 +13,7 @@ public interface Rados extends Library {
     int rados_create(Pointer cluster, String id);
     int rados_conf_read_file(Pointer cluster, String path);
     int rados_conf_set(Pointer cluster, String option, String value);
-    int rados_conf_get(Pointer cluster, String option, String value);
+    int rados_conf_get(Pointer cluster, String option, Pointer buff, int len);
     int rados_connect(Pointer cluster);
     int rados_pool_create(Pointer cluster, String name);
     int rados_pool_create_with_auid(Pointer cluster, String name, long auid);
