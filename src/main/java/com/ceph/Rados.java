@@ -104,6 +104,22 @@ public class Rados {
     }
 
     /**
+     * Get the cluster's fsid
+     *
+     * @return
+     *        A string containing the cluster's fsid
+     * @throws RadosException
+     */
+    public String getFsid() throws RadosException {
+        byte[] buf = new byte[256];
+        int r = rados.rados_cluster_fsid(this.clusterPtr.getPointer(0), buf, buf.length);
+        if (r < 0) {
+            throw new RadosException("Unable to retrieve the cluster's fsid", r);
+        }
+        return Native.toString(buf);
+    }
+
+    /**
      * Create a RADOS pool
      *
      * @param name
