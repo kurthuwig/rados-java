@@ -3,6 +3,7 @@ package com.ceph;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.Pointer;
 import com.sun.jna.Memory;
+import com.sun.jna.Native;
 import java.io.File;
 
 import static com.ceph.Library.rados;
@@ -71,13 +72,12 @@ public class Rados {
      * @throws RadosException
      */
     public String confGet(String option) throws RadosException {
-        int len = 256;
-        Pointer p = new Memory(len);
-        int r = rados.rados_conf_get(this.clusterPtr.getPointer(0), option, p, len);
+        byte[] buf = new byte[256];
+        int r = rados.rados_conf_get(this.clusterPtr.getPointer(0), option, buf, buf.length);
         if (r < 0) {
             throw new RadosException("Unable to retrieve the value of configuration option " + option, r);
         }
-        return p.getString(0);
+        return Native.toString(buf);
     }
 
     /**
