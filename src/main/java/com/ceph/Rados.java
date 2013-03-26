@@ -11,6 +11,7 @@ import static com.ceph.Library.rados;
 public class Rados {
 
     protected Pointer clusterPtr;
+    private boolean connected;
 
     /**
      * Construct a RADOS Object which invokes rados_create
@@ -40,6 +41,9 @@ public class Rados {
      * @throws RadosException
      */
     public void confReadFile(File file) throws RadosException {
+        if (this.connected) {
+            throw new RadosException("Can't set configuration options in a connected state");
+        }
         int r = rados.rados_conf_read_file(this.clusterPtr.getPointer(0), file.getAbsolutePath());
         if (r < 0) {
             throw new RadosException("Failed reading configuration file " + file.getAbsolutePath(), r);
@@ -56,6 +60,9 @@ public class Rados {
      * @throws RadosException
      */
     public void confSet(String option, String value) throws RadosException {
+        if (this.connected) {
+            throw new RadosException("Can't set configuration options in a connected state");
+        }
         int r = rados.rados_conf_set(this.clusterPtr.getPointer(0), option, value);
         if (r < 0) {
             throw new RadosException("Could not set configuration option " + option, r);
@@ -72,6 +79,9 @@ public class Rados {
      * @throws RadosException
      */
     public String confGet(String option) throws RadosException {
+        if (this.connected) {
+            throw new RadosException("Can't set configuration options in a connected state");
+        }
         byte[] buf = new byte[256];
         int r = rados.rados_conf_get(this.clusterPtr.getPointer(0), option, buf, buf.length);
         if (r < 0) {
@@ -90,6 +100,7 @@ public class Rados {
         if (r < 0) {
             throw new RadosException("The connection to the Ceph cluster failed", r);
         }
+        this.connected = true;
     }
 
     /**
@@ -99,15 +110,24 @@ public class Rados {
      *            the name of the pool to be created
      * @throws RadosException
      */
-    public void poolCreate(String name) {
+    public void poolCreate(String name) throws RadosException {
+        if (!this.connected) {
+            throw new RadosException("Can't create a pool when not connected");
+        }
         rados.rados_pool_create(this.clusterPtr.getPointer(0), name);
     }
 
-    public void poolCreate(String name, long auid) {
+    public void poolCreate(String name, long auid) throws RadosException {
+        if (!this.connected) {
+            throw new RadosException("Can't create a pool when not connected");
+        }
         rados.rados_pool_create_with_auid(this.clusterPtr.getPointer(0), name, auid);
     }
 
-    public void poolCreate(String name, long auid, long crushrule) {
+    public void poolCreate(String name, long auid, long crushrule) throws RadosException {
+        if (!this.connected) {
+            throw new RadosException("Can't create a pool when not connected");
+        }
         rados.rados_pool_create_with_all(this.clusterPtr.getPointer(0), name, auid, crushrule);
     }
 
