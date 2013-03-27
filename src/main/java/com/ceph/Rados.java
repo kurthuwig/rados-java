@@ -195,6 +195,15 @@ public class Rados {
     }
 
     /**
+     * Get the global unique ID of the current connection
+     *
+     * @return long
+     */
+    public long getInstanceId() throws RadosException {
+        return rados.rados_get_instance_id(this.clusterPtr.getPointer(0));
+    }
+
+    /**
      * Get the librados version
      *
      * @return a int array with the minor, major and extra version
