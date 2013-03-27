@@ -122,7 +122,7 @@ public class Rados {
      *        A string containing the cluster's fsid
      * @throws RadosException
      */
-    public String getFsid() throws RadosException {
+    public String clusterFsid() throws RadosException {
         byte[] buf = new byte[256];
         int r = rados.rados_cluster_fsid(this.clusterPtr.getPointer(0), buf, buf.length);
         if (r < 0) {
@@ -134,11 +134,11 @@ public class Rados {
     /**
      * Get the cluster stats
      *
-     * @return RadosClusterStructure
+     * @return RadosClusterInfo
      * @throws RadosException
      */
-    public RadosClusterStructure clusterStat() throws RadosException {
-        RadosClusterStructure result = new RadosClusterStructure();
+    public RadosClusterInfo clusterStat() throws RadosException {
+        RadosClusterInfo result = new RadosClusterInfo();
         int r = rados.rados_cluster_stat(this.clusterPtr.getPointer(0), result);
         return result;
     }

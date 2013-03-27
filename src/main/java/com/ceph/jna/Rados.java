@@ -12,7 +12,7 @@
 
 package com.ceph.jna;
 
-import com.ceph.RadosClusterStructure;
+import com.ceph.RadosClusterInfo;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.ptr.IntByReference;
@@ -28,7 +28,7 @@ public interface Rados extends Library {
     int rados_conf_set(Pointer cluster, String option, String value);
     int rados_conf_get(Pointer cluster, String option, byte[] buf, int len);
     int rados_cluster_fsid(Pointer cluster, byte[] buf, int len);
-    int rados_cluster_stat(Pointer cluster, RadosClusterStructure result);
+    int rados_cluster_stat(Pointer cluster, RadosClusterInfo result);
     int rados_connect(Pointer cluster);
     int rados_pool_create(Pointer cluster, String name);
     int rados_pool_create_with_auid(Pointer cluster, String name, long auid);

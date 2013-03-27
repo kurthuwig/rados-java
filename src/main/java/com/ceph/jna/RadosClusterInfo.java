@@ -16,7 +16,7 @@ import com.sun.jna.Structure;
 import java.util.List;
 import java.util.Arrays;
 
-public class RadosClusterStructure extends Structure {
+public class RadosClusterInfo extends Structure {
     public long kb;
     public long kb_used;
     public long kb_avail;
