@@ -35,6 +35,7 @@ public interface Rados extends Library {
     int rados_pool_create_with_all(Pointer cluster, String name, long auid, long crushrule);
     int rados_pool_create_with_crush_rule(Pointer cluster, String name, long crushrule);
     int rados_pool_list(Pointer cluster, byte[] buf, int len);
+    long rados_pool_lookup(Pointer cluster, String name);
     long rados_get_instance_id(Pointer cluster);
     int rados_ioctx_create(Pointer cluster, String pool, Pointer ioctx);
     void rados_ioctx_destroy(Pointer ioctx);
