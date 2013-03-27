@@ -46,6 +46,19 @@ public class Rados {
     }
 
     /**
+     * Some methods should not be called when not connected
+     * or vise versa
+     */
+    private void verifyConnected(boolean required) throws RadosException {
+        if (required && !this.connected) {
+            throw new RadosException("This method should not be called in a disconnected state.");
+        }
+        if (!required && this.connected) {
+             throw new RadosException("This method should not be called in a connected state.");
+        }
+    }
+
+    /**
      * Read a Ceph configuration file
      *
      * @param file
@@ -53,9 +66,7 @@ public class Rados {
      * @throws RadosException
      */
     public void confReadFile(File file) throws RadosException {
-        if (this.connected) {
-            throw new RadosException("Can't set configuration options in a connected state");
-        }
+        this.verifyConnected(false);
         int r = rados.rados_conf_read_file(this.clusterPtr.getPointer(0), file.getAbsolutePath());
         if (r < 0) {
             throw new RadosException("Failed reading configuration file " + file.getAbsolutePath(), r);
@@ -72,9 +83,7 @@ public class Rados {
      * @throws RadosException
      */
     public void confSet(String option, String value) throws RadosException {
-        if (this.connected) {
-            throw new RadosException("Can't set configuration options in a connected state");
-        }
+        this.verifyConnected(false);
         int r = rados.rados_conf_set(this.clusterPtr.getPointer(0), option, value);
         if (r < 0) {
             throw new RadosException("Could not set configuration option " + option, r);
@@ -91,9 +100,7 @@ public class Rados {
      * @throws RadosException
      */
     public String confGet(String option) throws RadosException {
-        if (this.connected) {
-            throw new RadosException("Can't set configuration options in a connected state");
-        }
+        this.verifyConnected(false);
         byte[] buf = new byte[256];
         int r = rados.rados_conf_get(this.clusterPtr.getPointer(0), option, buf, buf.length);
         if (r < 0) {
@@ -123,6 +130,7 @@ public class Rados {
      * @throws RadosException
      */
     public String clusterFsid() throws RadosException {
+        this.verifyConnected(true);
         byte[] buf = new byte[256];
         int r = rados.rados_cluster_fsid(this.clusterPtr.getPointer(0), buf, buf.length);
         if (r < 0) {
@@ -138,6 +146,7 @@ public class Rados {
      * @throws RadosException
      */
     public RadosClusterInfo clusterStat() throws RadosException {
+        this.verifyConnected(true);
         RadosClusterInfo result = new RadosClusterInfo();
         int r = rados.rados_cluster_stat(this.clusterPtr.getPointer(0), result);
         return result;
@@ -151,23 +160,17 @@ public class Rados {
      * @throws RadosException
      */
     public void poolCreate(String name) throws RadosException {
-        if (!this.connected) {
-            throw new RadosException("Can't create a pool when not connected");
-        }
+        this.verifyConnected(true);
         rados.rados_pool_create(this.clusterPtr.getPointer(0), name);
     }
 
     public void poolCreate(String name, long auid) throws RadosException {
-        if (!this.connected) {
-            throw new RadosException("Can't create a pool when not connected");
-        }
+        this.verifyConnected(true);
         rados.rados_pool_create_with_auid(this.clusterPtr.getPointer(0), name, auid);
     }
 
     public void poolCreate(String name, long auid, long crushrule) throws RadosException {
-        if (!this.connected) {
-            throw new RadosException("Can't create a pool when not connected");
-        }
+        this.verifyConnected(true);
         rados.rados_pool_create_with_all(this.clusterPtr.getPointer(0), name, auid, crushrule);
     }
 
@@ -183,6 +186,7 @@ public class Rados {
      * @throws RadosException
      */
     public String[] poolList() throws RadosException {
+        this.verifyConnected(true);
         byte[] temp_buf = new byte[256];
         int len = rados.rados_pool_list(this.clusterPtr.getPointer(0), temp_buf, temp_buf.length);
 
@@ -200,6 +204,7 @@ public class Rados {
      * @return long
      */
     public long getInstanceId() throws RadosException {
+        this.verifyConnected(true);
         return rados.rados_get_instance_id(this.clusterPtr.getPointer(0));
     }
 
