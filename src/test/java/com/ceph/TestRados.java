@@ -144,12 +144,14 @@ public final class TestRados extends TestCase {
         }
     }
 
-    public void testIoCtxCreateAndDestroy() {
+    public void testIoCtxCreateAndDestroyWithID() {
         try {
             Rados r = new Rados(this.id);
             r.confReadFile(new File(this.configFile));
             r.connect();
             IoCTX io = r.ioCtxCreate("data");
+            long id = io.getId();
+            assertTrue("The pool ID should be at least 0", id >= 0);
             r.ioCtxDestroy(io);
         } catch (RadosException e) {
             fail(e.getMessage() + ": " + e.getReturnValue());

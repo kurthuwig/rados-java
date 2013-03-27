@@ -28,4 +28,8 @@ public class IoCTX {
         return this.ioCtxPtr.getPointer(0);
     }
 
+    public long getId() {
+        return rados.rados_ioctx_get_id(this.getPointer());
+    }
+
 }

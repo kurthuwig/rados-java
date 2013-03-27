@@ -39,6 +39,7 @@ public interface Rados extends Library {
     long rados_get_instance_id(Pointer cluster);
     int rados_ioctx_create(Pointer cluster, String pool, Pointer ioctx);
     void rados_ioctx_destroy(Pointer ioctx);
+    long rados_ioctx_get_id(Pointer ioctx);
     int rados_shutdown(Pointer cluster);
 
 }
