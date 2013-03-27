@@ -177,6 +177,24 @@ public class Rados {
     }
 
     /**
+     * List all the RADOS pools
+     *
+     * @return String[]
+     * @throws RadosException
+     */
+    public String[] poolList() throws RadosException {
+        byte[] temp_buf = new byte[256];
+        int len = rados.rados_pool_list(this.clusterPtr.getPointer(0), temp_buf, temp_buf.length);
+
+        byte[] buf = new byte[len];
+        int r = rados.rados_pool_list(this.clusterPtr.getPointer(0), buf, buf.length);
+        if (r < 0) {
+            throw new RadosException("Couldn't list all pools", r);
+        }
+        return new String(buf).split("\0");
+    }
+
+    /**
      * Get the librados version
      *
      * @return a int array with the minor, major and extra version

@@ -105,4 +105,17 @@ public final class TestRados extends TestCase {
             fail(e.getMessage() + ": " + e.getReturnValue());
         }
     }
+
+    public void testPoolList() {
+        try {
+            Rados r = new Rados(this.id);
+            r.confReadFile(new File(this.configFile));
+            r.connect();
+            String[] pools = r.poolList();
+            assertNotNull(pools);
+            assertTrue("We expect at least 3 pools (data, metadata, rbd)", pools.length >= 3);
+        } catch (RadosException e) {
+            fail(e.getMessage() + ": " + e.getReturnValue());
+        }
+    }
 }
