@@ -157,4 +157,48 @@ public final class TestRados extends TestCase {
             fail(e.getMessage() + ": " + e.getReturnValue());
         }
     }
+
+    public void testIoCtxGetSetAuid() {
+        try {
+            Rados r = new Rados(this.id);
+            r.confReadFile(new File(this.configFile));
+            r.connect();
+            IoCTX io = r.ioCtxCreate("data");
+
+            /**
+               We fetch the auid, try to set it to 42 and set it
+               back again to the original value
+            */
+            long auid = io.getAuid();
+            assertTrue("The auid should be at least 0", auid >= 0);
+
+            io.setAuid(42);
+            assertEquals("The auid should be 42", 42, io.getAuid());
+
+            io.setAuid(auid);
+            assertEquals("The auid should be 0", 0, io.getAuid());
+
+            r.ioCtxDestroy(io);
+        } catch (RadosException e) {
+            fail(e.getMessage() + ": " + e.getReturnValue());
+        }
+    }
+
+    public void testIoCtxPoolName() {
+        try {
+            Rados r = new Rados(this.id);
+            r.confReadFile(new File(this.configFile));
+            r.connect();
+
+            String poolName = "data";
+            IoCTX io = r.ioCtxCreate(poolName);
+
+            assertEquals(poolName, io.getPoolName());
+
+            r.ioCtxDestroy(io);
+        } catch (RadosException e) {
+            fail(e.getMessage() + ": " + e.getReturnValue());
+        }
+    }
+
 }

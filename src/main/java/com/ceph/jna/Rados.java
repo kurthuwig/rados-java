@@ -16,6 +16,7 @@ import com.ceph.RadosClusterInfo;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.Pointer;
 
 public interface Rados extends Library {
@@ -40,6 +41,10 @@ public interface Rados extends Library {
     int rados_ioctx_create(Pointer cluster, String pool, Pointer ioctx);
     void rados_ioctx_destroy(Pointer ioctx);
     long rados_ioctx_get_id(Pointer ioctx);
+    int rados_ioctx_pool_set_auid(Pointer ioctx, long auid);
+    int rados_ioctx_pool_get_auid(Pointer ioctx, LongByReference auid);
+    int rados_ioctx_get_pool_name(Pointer ioctx, byte[] buf, int len);
+    void rados_ioctx_locator_set_key(Pointer ioctx, String key);
     int rados_shutdown(Pointer cluster);
 
 }
