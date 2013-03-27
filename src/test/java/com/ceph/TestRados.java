@@ -15,6 +15,7 @@ package com.ceph;
 import com.ceph.Rados;
 import com.ceph.RadosException;
 import com.ceph.RadosClusterInfo;
+import com.ceph.IoCTX;
 import java.io.File;
 import junit.framework.*;
 
@@ -126,6 +127,18 @@ public final class TestRados extends TestCase {
             r.connect();
             long id = r.getInstanceId();
             assertTrue("The id should be greater than 0", id > 0);
+        } catch (RadosException e) {
+            fail(e.getMessage() + ": " + e.getReturnValue());
+        }
+    }
+
+    public void testIoCtxCreateAndDestroy() {
+        try {
+            Rados r = new Rados(this.id);
+            r.confReadFile(new File(this.configFile));
+            r.connect();
+            IoCTX io = r.ioCtxCreate("data");
+            r.ioCtxDestroy(io);
         } catch (RadosException e) {
             fail(e.getMessage() + ": " + e.getReturnValue());
         }

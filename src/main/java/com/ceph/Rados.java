@@ -199,6 +199,35 @@ public class Rados {
     }
 
     /**
+     * Create a IoCTX
+     *
+     * @param name
+     *           The name of the RADOS pool
+     * @return IoCTX
+     * @throws RadosException
+     */
+    public IoCTX ioCtxCreate(String pool) throws RadosException {
+        Pointer p = new Memory(Pointer.SIZE);
+        int r = rados.rados_ioctx_create(this.clusterPtr.getPointer(0), pool, p);
+        if (r < 0) {
+            throw new RadosException("Failed to create the IoCTX for " + pool, r);
+        }
+
+        return new IoCTX(p);
+    }
+
+    /**
+     * Destroy a IoCTX
+     *
+     * @param ioctx
+     *             A IoCTX object
+     */
+    public void ioCtxDestroy(IoCTX io) {
+        rados.rados_ioctx_destroy(io.getPointer());
+    }
+
+
+    /**
      * Get the global unique ID of the current connection
      *
      * @return long
