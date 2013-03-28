@@ -201,4 +201,24 @@ public final class TestRados extends TestCase {
         }
     }
 
+    public void testIoCtxListObjects() {
+        try {
+            Rados r = new Rados(this.id);
+            r.confReadFile(new File(this.configFile));
+            r.connect();
+
+            String poolName = "data";
+            IoCTX io = r.ioCtxCreate(poolName);
+
+            String[] objects = io.listObjects();
+            for (int i = 0; i < objects.length; i++) {
+                System.out.println(objects[i]);
+            }
+
+            r.ioCtxDestroy(io);
+        } catch (RadosException e) {
+            fail(e.getMessage() + ": " + e.getReturnValue());
+        }
+    }
+
 }

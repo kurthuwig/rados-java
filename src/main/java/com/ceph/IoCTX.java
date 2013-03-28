@@ -14,7 +14,10 @@ package com.ceph;
 
 import com.sun.jna.Pointer;
 import com.sun.jna.Native;
+import com.sun.jna.Memory;
 import com.sun.jna.ptr.LongByReference;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.ceph.Library.rados;
 
@@ -108,4 +111,28 @@ public class IoCTX {
         rados.rados_ioctx_locator_set_key(this.getPointer(), key);
     }
 
+    /**
+     * List all objects in a pool
+     *
+     * @return String[]
+     * @throws RadosException
+     */
+    public String[] listObjects() throws RadosException {
+        Pointer entry = new Memory(Pointer.SIZE);
+        List<String> objects = new ArrayList<String>();
+        Pointer list = new Memory(Pointer.SIZE);
+
+        int r = rados.rados_objects_list_open(this.getPointer(), list);
+        if (r < 0) {
+            throw new RadosException("Failed listing all objects", r);
+        }
+
+        while (rados.rados_objects_list_next(list.getPointer(0), entry, null) == 0) {
+            objects.add(entry.getPointer(0).getString(0));
+        }
+
+        rados.rados_objects_list_close(list.getPointer(0));
+
+        return objects.toArray(new String[objects.size()]);
+    }
 }
