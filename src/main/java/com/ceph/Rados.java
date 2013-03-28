@@ -217,7 +217,7 @@ public class Rados {
     /**
      * Create a IoCTX
      *
-     * @param name
+     * @param pool
      *           The name of the RADOS pool
      * @return IoCTX
      * @throws RadosException
@@ -235,7 +235,7 @@ public class Rados {
     /**
      * Destroy a IoCTX
      *
-     * @param ioctx
+     * @param io
      *             A IoCTX object
      */
     public void ioCtxDestroy(IoCTX io) {
