@@ -15,6 +15,7 @@ package com.ceph;
 import com.ceph.Rados;
 import com.ceph.RadosException;
 import com.ceph.RadosClusterInfo;
+import com.ceph.jna.RadosObjectInfo;
 import com.ceph.IoCTX;
 import java.io.File;
 import junit.framework.*;
@@ -222,8 +223,13 @@ public final class TestRados extends TestCase {
             assertTrue("We expect at least one object in the pool", objects.length > 0);
 
             String buf = io.read(oid, content.length(), 0);
+            RadosObjectInfo info = io.stat(oid);
 
+            assertEquals("The size of what we wrote doesn't match with the stat", content.length(), info.getSize());
             assertEquals("The content we read was different from what we wrote", content, buf);
+
+            long now = System.currentTimeMillis()/1000;
+            assertFalse("The mtime was in the future", now < info.getMtime());
 
             io.remove(oid);
 

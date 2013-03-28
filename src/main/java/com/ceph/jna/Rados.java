@@ -54,6 +54,7 @@ public interface Rados extends Library {
     int rados_read(Pointer ioctx, String oid, byte[] buf, long len, long off);
     int rados_remove(Pointer ioctx, String oid);
     int rados_trunc(Pointer ioctx, String oid, long size);
+    int rados_stat(Pointer ioctxo, String oi, LongByReference size, LongByReference mtime);
     int rados_shutdown(Pointer cluster);
 
 }

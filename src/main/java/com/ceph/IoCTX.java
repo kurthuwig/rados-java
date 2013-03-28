@@ -12,6 +12,7 @@
 
 package com.ceph;
 
+import com.ceph.jna.RadosObjectInfo;
 import com.sun.jna.Pointer;
 import com.sun.jna.Native;
 import com.sun.jna.Memory;
@@ -236,5 +237,24 @@ public class IoCTX {
         if (r < 0) {
             throw new RadosException("Failed appending " + buf.length() + " bytes to " + oid, r);
         }
+    }
+
+    /**
+     * Stat an object
+     *
+     * @param oid
+     *          The name of the object
+     * @return RadosObjectInfo
+     *           The size and mtime of the object
+     * @throws RadosException
+     */
+    public RadosObjectInfo stat(String oid) throws RadosException {
+        LongByReference size = new LongByReference();
+        LongByReference mtime = new LongByReference();
+        int r = rados.rados_stat(this.getPointer(), oid, size, mtime);
+        if (r < 0) {
+            throw new RadosException("Failed performing a stat on " + oid, r);
+        }
+        return new RadosObjectInfo(oid, size.getValue(), mtime.getValue());
     }
 }
