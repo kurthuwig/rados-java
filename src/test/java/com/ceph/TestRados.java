@@ -201,27 +201,7 @@ public final class TestRados extends TestCase {
         }
     }
 
-    public void testIoCtxListObjects() {
-        try {
-            Rados r = new Rados(this.id);
-            r.confReadFile(new File(this.configFile));
-            r.connect();
-
-            String poolName = "data";
-            IoCTX io = r.ioCtxCreate(poolName);
-
-            String[] objects = io.listObjects();
-            for (int i = 0; i < objects.length; i++) {
-                System.out.println(objects[i]);
-            }
-
-            r.ioCtxDestroy(io);
-        } catch (RadosException e) {
-            fail(e.getMessage() + ": " + e.getReturnValue());
-        }
-    }
-
-    public void testIoCtxWriteAndRead() {
+    public void testIoCtxWriteListAndRead() {
         try {
             Rados r = new Rados(this.id);
             r.confReadFile(new File(this.configFile));
@@ -233,6 +213,9 @@ public final class TestRados extends TestCase {
             String oid = "rados-java";
             String content = "junit wrote this";
             io.write(oid, content);
+
+            String[] objects = io.listObjects();
+            assertTrue("We expect at least one object in the pool", objects.length > 0);
 
             String buf = io.read(oid, content.length(), 0);
 
