@@ -26,12 +26,14 @@ public final class TestRados extends TestCase {
      */
     String configFile = "/etc/ceph/ceph.conf";
     String id = "admin";
+    String pool = "data";
 
     /**
         This test reads it's configuration from the environment
         Possible variables:
         * RADOS_JAVA_ID
         * RADOS_JAVA_CONFIG_FILE
+        * RADOS_JAVA_POOL
      */
     public void setUp() {
         if (System.getenv("RADOS_JAVA_CONFIG_FILE") != null) {
@@ -40,6 +42,10 @@ public final class TestRados extends TestCase {
 
         if (System.getenv("RADOS_JAVA_ID") != null) {
             this.id = System.getenv("RADOS_JAVA_ID");
+        }
+
+        if (System.getenv("RADOS_JAVA_POOL") != null) {
+            this.pool = System.getenv("RADOS_JAVA_POOL");
         }
     }
 
@@ -125,7 +131,7 @@ public final class TestRados extends TestCase {
             Rados r = new Rados(this.id);
             r.confReadFile(new File(this.configFile));
             r.connect();
-            long id = r.poolLookup("data");
+            long id = r.poolLookup(this.pool);
             assertTrue("The pool ID should be at least 0", id >= 0);
         } catch (RadosException e) {
             fail(e.getMessage() + ": " + e.getReturnValue());
@@ -149,7 +155,7 @@ public final class TestRados extends TestCase {
             Rados r = new Rados(this.id);
             r.confReadFile(new File(this.configFile));
             r.connect();
-            IoCTX io = r.ioCtxCreate("data");
+            IoCTX io = r.ioCtxCreate(this.pool);
             long id = io.getId();
             assertTrue("The pool ID should be at least 0", id >= 0);
             r.ioCtxDestroy(io);
@@ -163,7 +169,7 @@ public final class TestRados extends TestCase {
             Rados r = new Rados(this.id);
             r.confReadFile(new File(this.configFile));
             r.connect();
-            IoCTX io = r.ioCtxCreate("data");
+            IoCTX io = r.ioCtxCreate(this.pool);
 
             /**
                We fetch the auid, try to set it to 42 and set it
@@ -190,10 +196,9 @@ public final class TestRados extends TestCase {
             r.confReadFile(new File(this.configFile));
             r.connect();
 
-            String poolName = "data";
-            IoCTX io = r.ioCtxCreate(poolName);
+            IoCTX io = r.ioCtxCreate(this.pool);
 
-            assertEquals(poolName, io.getPoolName());
+            assertEquals(this.pool, io.getPoolName());
 
             r.ioCtxDestroy(io);
         } catch (RadosException e) {
@@ -207,8 +212,7 @@ public final class TestRados extends TestCase {
             r.confReadFile(new File(this.configFile));
             r.connect();
 
-            String poolName = "data";
-            IoCTX io = r.ioCtxCreate(poolName);
+            IoCTX io = r.ioCtxCreate(this.pool);
 
             String oid = "rados-java";
             String content = "junit wrote this";

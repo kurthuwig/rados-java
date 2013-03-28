@@ -20,8 +20,13 @@ $ ant test
 The tests require a running Ceph cluster. By default it will read /etc/ceph/ceph.conf
 and use "admin" as a cephx id.
 
+All tests will be performed on the pool "data".
+
+DO NOT RUN THESE TESTS ON A PRODUCTION PLATFORM.
+
 You can overrride this by setting these environment variables:
 * RADOS_JAVA_ID
 * RADOS_JAVA_CONFIG_FILE
+* RADOS_JAVA_POOL
 
 N.B.: You need to make sure jna.jar and junit.jar are present in /usr/share/java
