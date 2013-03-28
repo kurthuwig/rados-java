@@ -203,4 +203,38 @@ public class IoCTX {
         }
         return new String(buf);
     }
+
+    /**
+     * Resize an object
+     *
+     * @param oid
+     *           The object to resize
+     * @param size
+     *          The new length of the object.  If this enlarges the object,
+     *          the new area is logically filled with
+     *          zeroes. If this shrinks the object, the excess data is removed.
+     * @throws RadosException
+     */
+    public void truncate(String oid, long size) throws RadosException {
+        int r = rados.rados_trunc(this.getPointer(), oid, size);
+        if (r < 0) {
+            throw new RadosException("Failed resizing " + oid + " to " + size + " bytes", r);
+        }
+    }
+
+    /**
+     * Append data to an object
+     *
+     * @param oid
+     *           The name to append to
+     * @param buf
+     *           The data to append
+     * @throws RadosException
+     */
+    public void append(String oid, String buf) throws RadosException {
+        int r = rados.rados_append(this.getPointer(), oid, buf, buf.length());
+        if (r < 0) {
+            throw new RadosException("Failed appending " + buf.length() + " bytes to " + oid, r);
+        }
+    }
 }
