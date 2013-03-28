@@ -135,4 +135,72 @@ public class IoCTX {
 
         return objects.toArray(new String[objects.size()]);
     }
+
+    /**
+     * Write to an object
+     *
+     * @param oid
+     *          The object to write to
+     * @param buf
+     *          The content to write
+     * @param offset
+     *          The offset when writing
+     * @throws RadosException
+     */
+    public void write(String oid, String buf, long offset) throws RadosException {
+        int r = rados.rados_write(this.getPointer(), oid, buf, buf.length(), offset);
+        if (r < 0) {
+            throw new RadosException("Failed writing " + buf.length() + " bytes with offset " + offset + " to " + oid, r);
+        }
+    }
+
+    /**
+     * Write to an object without an offset
+     *
+     * @param oid
+     *          The object to write to
+     * @param buf
+     *          The content to write
+     * @throws RadosException
+     */
+    public void write(String oid, String buf) throws RadosException {
+        int r = rados.rados_write_full(this.getPointer(), oid, buf, buf.length());
+        if (r < 0) {
+            throw new RadosException("Failed writing " + buf.length() + " bytes to " + oid, r);
+        }
+    }
+
+    /**
+     * Remove an object
+     *
+     * @param oid
+     *          The object to remove
+     * @throws RadosException
+     */
+    public void remove(String oid) throws RadosException {
+        int r = rados.rados_remove(this.getPointer(), oid);
+        if (r < 0) {
+            throw new RadosException("Failed removing " + oid, r);
+        }
+    }
+
+    /**
+     * Read data from an object
+     *
+     * @param oid
+     *          The object's name
+     * @param length
+     *          Amount of bytes to read
+     * @param offset
+     *          The offset where to start reading
+     * @throws RadosException
+     */
+    public String read(String oid, int length, long offset) throws RadosException {
+        byte[] buf = new byte[length];
+        int r = rados.rados_read(this.getPointer(), oid, buf, length, offset);
+        if (r < 0) {
+            throw new RadosException("Failed reading " + length + " bytes with offset " + offset + " from " + oid, r);
+        }
+        return new String(buf);
+    }
 }

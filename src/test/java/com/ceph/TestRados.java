@@ -221,4 +221,29 @@ public final class TestRados extends TestCase {
         }
     }
 
+    public void testIoCtxWriteAndRead() {
+        try {
+            Rados r = new Rados(this.id);
+            r.confReadFile(new File(this.configFile));
+            r.connect();
+
+            String poolName = "data";
+            IoCTX io = r.ioCtxCreate(poolName);
+
+            String oid = "rados-java";
+            String content = "junit wrote this";
+            io.write(oid, content);
+
+            String buf = io.read(oid, content.length(), 0);
+
+            assertEquals("The content we read was different from what we wrote", content, buf);
+
+            io.remove(oid);
+
+            r.ioCtxDestroy(io);
+        } catch (RadosException e) {
+            fail(e.getMessage() + ": " + e.getReturnValue());
+        }
+    }
+
 }
