@@ -207,6 +207,11 @@ public final class TestRados extends TestCase {
         }
     }
 
+    /**
+     * This is an pretty extensive test which creates an object
+     * writes data, appends, truncates verifies the written data
+     * and finally removes the object
+     */
     public void testIoCtxWriteListAndRead() {
         try {
             Rados r = new Rados(this.id);
@@ -215,8 +220,12 @@ public final class TestRados extends TestCase {
 
             IoCTX io = r.ioCtxCreate(this.pool);
 
+            /**
+             * The object we will write to with the data
+             */
             String oid = "rados-java";
             String content = "junit wrote this";
+
             io.write(oid, content);
 
             String[] objects = io.listObjects();
@@ -230,6 +239,18 @@ public final class TestRados extends TestCase {
 
             long now = System.currentTimeMillis()/1000;
             assertFalse("The mtime was in the future", now < info.getMtime());
+
+            /**
+             * We simply append the already written data
+             */
+            io.append(oid, content);
+            assertEquals("The size doesn't match after the append", content.length()*2, io.stat(oid).getSize());
+
+            /**
+              * We now resize the object to it's original size
+             */
+            io.truncate(oid, content.length());
+            assertEquals("The size doesn't match after the truncate", content.length(), io.stat(oid).getSize());
 
             io.remove(oid);
 
