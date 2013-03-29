@@ -12,6 +12,7 @@
 
 package com.ceph;
 
+import com.ceph.jna.RadosClusterInfo;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.Pointer;
 import com.sun.jna.Memory;

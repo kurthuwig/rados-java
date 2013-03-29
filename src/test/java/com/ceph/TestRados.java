@@ -14,7 +14,7 @@ package com.ceph;
 
 import com.ceph.Rados;
 import com.ceph.RadosException;
-import com.ceph.RadosClusterInfo;
+import com.ceph.jna.RadosClusterInfo;
 import com.ceph.jna.RadosObjectInfo;
 import com.ceph.IoCTX;
 import java.io.File;

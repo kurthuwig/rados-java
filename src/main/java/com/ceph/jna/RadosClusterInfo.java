@@ -10,7 +10,7 @@
  *
  */
 
-package com.ceph;
+package com.ceph.jna;
 
 import com.sun.jna.Structure;
 import java.util.List;
