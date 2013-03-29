@@ -19,6 +19,7 @@ import com.sun.jna.Memory;
 import com.sun.jna.ptr.LongByReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.lang.IllegalArgumentException;
 
 import static com.ceph.Library.rados;
 
@@ -148,7 +149,10 @@ public class IoCTX {
      *          The offset when writing
      * @throws RadosException
      */
-    public void write(String oid, String buf, long offset) throws RadosException {
+    public void write(String oid, String buf, long offset) throws RadosException, IllegalArgumentException {
+        if (offset < 0) {
+            throw new IllegalArgumentException("Offset shouldn't be a negative value");
+        }
         int r = rados.rados_write(this.getPointer(), oid, buf, buf.length(), offset);
         if (r < 0) {
             throw new RadosException("Failed writing " + buf.length() + " bytes with offset " + offset + " to " + oid, r);
@@ -196,7 +200,13 @@ public class IoCTX {
      *          The offset where to start reading
      * @throws RadosException
      */
-    public String read(String oid, int length, long offset) throws RadosException {
+    public String read(String oid, int length, long offset) throws RadosException, IllegalArgumentException {
+        if (length < 0) {
+            throw new IllegalArgumentException("Length shouldn't be a negative value");
+        }
+        if (offset < 0) {
+            throw new IllegalArgumentException("Offset shouldn't be a negative value");
+        }
         byte[] buf = new byte[length];
         int r = rados.rados_read(this.getPointer(), oid, buf, length, offset);
         if (r < 0) {
@@ -216,7 +226,10 @@ public class IoCTX {
      *          zeroes. If this shrinks the object, the excess data is removed.
      * @throws RadosException
      */
-    public void truncate(String oid, long size) throws RadosException {
+    public void truncate(String oid, long size) throws RadosException, IllegalArgumentException {
+        if (size < 0) {
+            throw new IllegalArgumentException("Size shouldn't be a negative value");
+        }
         int r = rados.rados_trunc(this.getPointer(), oid, size);
         if (r < 0) {
             throw new RadosException("Failed resizing " + oid + " to " + size + " bytes", r);

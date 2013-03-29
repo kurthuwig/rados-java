@@ -18,6 +18,7 @@ import com.ceph.jna.RadosClusterInfo;
 import com.ceph.jna.RadosObjectInfo;
 import com.ceph.IoCTX;
 import java.io.File;
+import java.lang.IllegalArgumentException;
 import junit.framework.*;
 
 public final class TestRados extends TestCase {
