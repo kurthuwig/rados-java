@@ -16,15 +16,34 @@ public class RadosException extends Exception {
 
     protected int returnValue;
 
+    /**
+     * Throw a a RadosException
+     *
+     * @param message
+     *         The error message
+     */
     public RadosException(String message) {
         super(message);
     }
 
+    /**
+     * Throw a a RadosException
+     *
+     * @param message
+     *         The error message
+     * @param returnValue
+     *         The return value of the rados_ call
+     */
     public RadosException(String message, int returnValue) {
         super(message);
         this.returnValue = returnValue;
     }
 
+    /**
+     * Get the return value passed on to the constructor
+     *
+     * @return int
+     */
     public int getReturnValue() {
         return this.returnValue;
     }
