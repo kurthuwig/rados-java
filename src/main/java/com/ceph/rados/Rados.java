@@ -216,6 +216,23 @@ public class Rados {
     }
 
     /**
+     * Get the name of a RADOS pool
+     *
+     * @param id
+     *           The id of the pool
+     * @return String
+     * @throws RadosException
+     */
+    public String poolReverseLookup(long id) throws RadosException {
+        byte[] buf = new byte[512];
+        int r = rados.rados_pool_reverse_lookup(this.clusterPtr.getPointer(0), id, buf, buf.length);
+        if (r < 0) {
+            throw new RadosException("Couldn't fetch the name of the pool. Does it exist?", r);
+        }
+        return new String(buf).trim();
+    }
+
+    /**
      * Create a IoCTX
      *
      * @param pool

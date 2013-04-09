@@ -136,6 +136,10 @@ public final class TestRados extends TestCase {
             r.connect();
             long id = r.poolLookup(this.pool);
             assertTrue("The pool ID should be at least 0", id >= 0);
+
+            String name = r.poolReverseLookup(id);
+            assertEquals("The pool names didn't match!", this.pool, name);
+
         } catch (RadosException e) {
             fail(e.getMessage() + ": " + e.getReturnValue());
         }
