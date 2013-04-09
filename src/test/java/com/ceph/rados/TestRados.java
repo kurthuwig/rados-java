@@ -54,13 +54,13 @@ public final class TestRados extends TestCase {
 
     /**
         This test verifies if we can get the version out of librados
-        It's currently hardcoded to expect at least 0.49.0
+        It's currently hardcoded to expect at least 0.48.0
      */
     public void testGetVersion() {
         Rados r = new Rados(this.id);
         int[] version = r.getVersion();
         assertTrue(version[0] >= 0);
-        assertTrue(version[1] >= 49);
+        assertTrue(version[1] >= 48);
         assertTrue(version[2] >= 0);
     }
 
