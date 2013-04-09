@@ -10,16 +10,16 @@
  *
  */
 
-package com.ceph;
+package com.ceph.rados;
 
-import com.ceph.jna.RadosClusterInfo;
+import com.ceph.rados.jna.RadosClusterInfo;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.Pointer;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import java.io.File;
 
-import static com.ceph.Library.rados;
+import static com.ceph.rados.Library.rados;
 
 public class Rados {
 

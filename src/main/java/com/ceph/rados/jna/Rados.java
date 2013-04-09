@@ -10,10 +10,10 @@
  *
  */
 
-package com.ceph.jna;
+package com.ceph.rados.jna;
 
-import com.ceph.jna.RadosClusterInfo;
-import com.ceph.jna.RadosPoolInfo;
+import com.ceph.rados.jna.RadosClusterInfo;
+import com.ceph.rados.jna.RadosPoolInfo;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.ptr.IntByReference;

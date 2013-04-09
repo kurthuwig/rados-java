@@ -10,7 +10,7 @@
  *
  */
 
-package com.ceph.jna;
+package com.ceph.rados.jna;
 
 public class RadosObjectInfo {
 

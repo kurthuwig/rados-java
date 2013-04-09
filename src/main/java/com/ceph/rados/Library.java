@@ -10,9 +10,9 @@
  *
  */
 
-package com.ceph;
+package com.ceph.rados;
 
-import com.ceph.jna.Rados;
+import com.ceph.rados.jna.Rados;
 
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;

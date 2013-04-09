@@ -10,7 +10,7 @@
  *
  */
 
-package com.ceph;
+package com.ceph.rados;
 
 public class RadosException extends Exception {
 

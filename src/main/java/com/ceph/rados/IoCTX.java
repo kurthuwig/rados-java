@@ -10,10 +10,10 @@
  *
  */
 
-package com.ceph;
+package com.ceph.rados;
 
-import com.ceph.jna.RadosObjectInfo;
-import com.ceph.jna.RadosPoolInfo;
+import com.ceph.rados.jna.RadosObjectInfo;
+import com.ceph.rados.jna.RadosPoolInfo;
 import com.sun.jna.Pointer;
 import com.sun.jna.Native;
 import com.sun.jna.Memory;
@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.lang.IllegalArgumentException;
 
-import static com.ceph.Library.rados;
+import static com.ceph.rados.Library.rados;
 
 public class IoCTX {
 

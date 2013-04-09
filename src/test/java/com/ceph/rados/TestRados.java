@@ -10,14 +10,14 @@
  *
  */
 
-package com.ceph;
+package com.ceph.rados;
 
-import com.ceph.Rados;
-import com.ceph.RadosException;
-import com.ceph.jna.RadosClusterInfo;
-import com.ceph.jna.RadosObjectInfo;
-import com.ceph.jna.RadosPoolInfo;
-import com.ceph.IoCTX;
+import com.ceph.rados.Rados;
+import com.ceph.rados.RadosException;
+import com.ceph.rados.jna.RadosClusterInfo;
+import com.ceph.rados.jna.RadosObjectInfo;
+import com.ceph.rados.jna.RadosPoolInfo;
+import com.ceph.rados.IoCTX;
 import java.io.File;
 import java.lang.IllegalArgumentException;
 import junit.framework.*;
