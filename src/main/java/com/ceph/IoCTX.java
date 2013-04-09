@@ -13,6 +13,7 @@
 package com.ceph;
 
 import com.ceph.jna.RadosObjectInfo;
+import com.ceph.jna.RadosPoolInfo;
 import com.sun.jna.Pointer;
 import com.sun.jna.Native;
 import com.sun.jna.Memory;
@@ -269,5 +270,20 @@ public class IoCTX {
             throw new RadosException("Failed performing a stat on " + oid, r);
         }
         return new RadosObjectInfo(oid, size.getValue(), mtime.getValue());
+    }
+
+    /**
+     * Stat the currently open pool
+     *
+     * @return RadosPoolInfo
+     * @throws RadosException
+     */
+    public RadosPoolInfo poolStat() throws RadosException {
+        RadosPoolInfo result = new RadosPoolInfo();
+        int r = rados.rados_ioctx_pool_stat(this.getPointer(), result);
+        if (r < 0) {
+            throw new RadosException("Failed retrieving the pool stats", r);
+        }
+        return result;
     }
 }

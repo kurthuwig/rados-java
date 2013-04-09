@@ -16,6 +16,7 @@ import com.ceph.Rados;
 import com.ceph.RadosException;
 import com.ceph.jna.RadosClusterInfo;
 import com.ceph.jna.RadosObjectInfo;
+import com.ceph.jna.RadosPoolInfo;
 import com.ceph.IoCTX;
 import java.io.File;
 import java.lang.IllegalArgumentException;
@@ -254,6 +255,23 @@ public final class TestRados extends TestCase {
             assertEquals("The size doesn't match after the truncate", content.length(), io.stat(oid).getSize());
 
             io.remove(oid);
+
+            r.ioCtxDestroy(io);
+        } catch (RadosException e) {
+            fail(e.getMessage() + ": " + e.getReturnValue());
+        }
+    }
+
+    public void testIoCtxPoolStat() {
+        try {
+            Rados r = new Rados(this.id);
+            r.confReadFile(new File(this.configFile));
+            r.connect();
+
+            IoCTX io = r.ioCtxCreate(this.pool);
+
+            RadosPoolInfo info = io.poolStat();
+            assertTrue(info.num_objects >= 0);
 
             r.ioCtxDestroy(io);
         } catch (RadosException e) {
