@@ -48,6 +48,8 @@ public interface Rados extends Library {
     int rados_ioctx_pool_get_auid(Pointer ioctx, LongByReference auid);
     int rados_ioctx_get_pool_name(Pointer ioctx, byte[] buf, int len);
     void rados_ioctx_locator_set_key(Pointer ioctx, String key);
+    int rados_ioctx_snap_create(Pointer ioctx, String snapname);
+    int rados_ioctx_snap_remove(Pointer ioctx, String snapname);
     int rados_objects_list_open(Pointer ioctx, Pointer list);
     int rados_objects_list_next(Pointer list, Pointer entry, byte[] key);
     void rados_objects_list_close(Pointer list);

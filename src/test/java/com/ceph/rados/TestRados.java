@@ -284,4 +284,24 @@ public final class TestRados extends TestCase {
         }
     }
 
+    public void testIoCtxSnapshot() {
+        try {
+
+            String snapname = "my-new-snapshot";
+
+            Rados r = new Rados(this.id);
+            r.confReadFile(new File(this.configFile));
+            r.connect();
+
+            IoCTX io = r.ioCtxCreate(this.pool);
+
+            io.snapCreate(snapname);
+            io.snapRemove(snapname);
+
+            r.ioCtxDestroy(io);
+        } catch (RadosException e) {
+            fail(e.getMessage() + ": " + e.getReturnValue());
+        }
+    }
+
 }

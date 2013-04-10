@@ -286,4 +286,32 @@ public class IoCTX {
         }
         return result;
     }
+
+    /**
+     * Create a snapshot
+     *
+     * @param snapname
+     *           The name of the snapshot
+     * @throws RadosException
+     */
+    public void snapCreate(String snapname) throws RadosException {
+        int r = rados.rados_ioctx_snap_create(this.getPointer(), snapname);
+        if (r < 0) {
+            throw new RadosException("Failed to create snapshot " + snapname, r);
+        }
+    }
+
+    /**
+     * Remove a snapshot
+     *
+     * @param snapname
+     *           The name of the snapshot
+     * @throws RadosException
+     */
+    public void snapRemove(String snapname) throws RadosException {
+        int r = rados.rados_ioctx_snap_remove(this.getPointer(), snapname);
+        if (r < 0) {
+            throw new RadosException("Failed to remove snapshot " + snapname, r);
+        }
+    }
 }
