@@ -314,4 +314,55 @@ public class IoCTX {
             throw new RadosException("Failed to remove snapshot " + snapname, r);
         }
     }
+
+    /**
+     * Get the ID of a snapshot
+     *
+     * @param snapname
+     *            The name of the snapshot
+     * @return long
+     * @throws RadosException
+     */
+    public long snapLookup(String snapname) throws RadosException {
+        LongByReference id = new LongByReference();
+        int r = rados.rados_ioctx_snap_lookup(this.getPointer(), snapname, id);
+        if (r < 0) {
+            throw new RadosException("Failed to lookup the ID of snapshot " + snapname, r);
+        }
+        return id.getValue();
+    }
+
+    /**
+     * Get the name of a snapshot by it's ID
+     *
+     * @param id
+     *          The ID of the snapshot
+     * @return String
+     * @throws RadosException
+     */
+    public String snapGetName(long id) throws RadosException {
+        byte[] buf = new byte[512];
+        int r = rados.rados_ioctx_snap_get_name(this.getPointer(), id, buf, buf.length);
+        if (r < 0) {
+            throw new RadosException("Failed to lookup the name of snapshot " + id, r);
+        }
+        return new String(buf).trim();
+    }
+
+    /**
+     * Get the timestamp of a snapshot
+     *
+     * @param id
+     *         The ID of the snapshot
+     * @return long
+     * @throws RadosException
+     */
+    public long snapGetStamp(long id) throws RadosException {
+        LongByReference time = new LongByReference();
+        int r = rados.rados_ioctx_snap_get_stamp(this.getPointer(), id, time);
+        if (r < 0) {
+            throw new RadosException("Failed to retrieve the timestamp of snapshot " + id, r);
+        }
+        return time.getValue();
+    }
 }

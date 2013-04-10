@@ -296,7 +296,17 @@ public final class TestRados extends TestCase {
             IoCTX io = r.ioCtxCreate(this.pool);
 
             io.snapCreate(snapname);
+
+            long snapid = io.snapLookup(snapname);
+            long time = io.snapGetStamp(snapid);
+            String snapnamebuf = io.snapGetName(snapid);
+
             io.snapRemove(snapname);
+
+            assertEquals("The snapshot names didn't match", snapname, snapnamebuf);
+
+            long now = System.currentTimeMillis()/1000;
+            assertTrue("The timestamp was in the future", now < time);
 
             r.ioCtxDestroy(io);
         } catch (RadosException e) {
