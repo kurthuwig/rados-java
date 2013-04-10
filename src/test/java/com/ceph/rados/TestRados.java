@@ -240,6 +240,7 @@ public final class TestRados extends TestCase {
             String buf = io.read(oid, content.length(), 0);
             RadosObjectInfo info = io.stat(oid);
 
+            assertEquals("The object names didn't match", oid, info.getOid());
             assertEquals("The size of what we wrote doesn't match with the stat", content.length(), info.getSize());
             assertEquals("The content we read was different from what we wrote", content, buf);
 
