@@ -254,6 +254,34 @@ public class IoCTX {
     }
 
     /**
+    * Efficiently copy a portion of one object to another
+    *
+    * If the underlying filesystem on the OSD supports it, this will be a
+    * copy-on-write clone.
+    *
+    * The src and dest objects must be in the same pg. To ensure this,
+    * the io context should have a locator key set (see IoCTX.locatorSetKey()).
+    *
+    * @param dst
+    *          The destination object
+    * @param dst_off
+    *          The offset at the destination object
+    * @param src
+    *          The source object
+    * @param src_off
+    *          The offset at the source object
+    * @param len
+    *          The amount of bytes to copy
+    * @throws RadosException
+    */
+    public void clone(String dst, long dst_off, String src, long src_off, long len) throws RadosException {
+        int r = rados.rados_clone_range(this.getPointer(), dst, dst_off, src, src_off, len);
+        if (r < 0) {
+            throw new RadosException("Failed to copy " + len + " bytes from " + src + " to " + dst, r);
+        }
+    }
+
+    /**
      * Stat an object
      *
      * @param oid
