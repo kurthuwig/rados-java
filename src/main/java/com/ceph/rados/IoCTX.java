@@ -365,4 +365,24 @@ public class IoCTX {
         }
         return time.getValue();
     }
+
+    /**
+     * List all snapshots
+     *
+     * @return Long[]
+     * @throws RadosException
+     */
+    public Long[] snapList() throws RadosException {
+        byte[] buf = new byte[512];
+        int r = rados.rados_ioctx_snap_list(this.getPointer(), buf, buf.length);
+        if (r < 0) {
+            throw new RadosException("Failed to list all snapshots", r);
+        }
+
+        Long[] snaps = new Long[r];
+        for (int i = 0; i < r; i++) {
+            snaps[i] = new Long(buf[i]);
+        }
+        return snaps;
+    }
 }

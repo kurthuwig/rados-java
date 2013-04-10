@@ -53,6 +53,7 @@ public interface Rados extends Library {
     int rados_ioctx_snap_lookup(Pointer ioctx, String snapname, LongByReference id);
     int rados_ioctx_snap_get_name(Pointer ioctx, long id, byte[] buf, long len);
     int rados_ioctx_snap_get_stamp(Pointer ioctx, long id, LongByReference time);
+    int rados_ioctx_snap_list(Pointer ioctx, byte[] buf, int len);
     int rados_objects_list_open(Pointer ioctx, Pointer list);
     int rados_objects_list_next(Pointer list, Pointer entry, byte[] key);
     void rados_objects_list_close(Pointer list);

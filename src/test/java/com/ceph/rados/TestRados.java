@@ -301,8 +301,11 @@ public final class TestRados extends TestCase {
             long time = io.snapGetStamp(snapid);
             String snapnamebuf = io.snapGetName(snapid);
 
+            Long[] snaps = io.snapList();
+
             io.snapRemove(snapname);
 
+            assertTrue("There should at least be one snapshot", snaps.length >= 1);
             assertEquals("The snapshot names didn't match", snapname, snapnamebuf);
 
             long now = System.currentTimeMillis()/1000;
