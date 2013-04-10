@@ -162,17 +162,47 @@ public class Rados {
      */
     public void poolCreate(String name) throws RadosException {
         this.verifyConnected(true);
-        rados.rados_pool_create(this.clusterPtr.getPointer(0), name);
+        int r = rados.rados_pool_create(this.clusterPtr.getPointer(0), name);
+        if (r < 0) {
+            throw new RadosException("Failed to create pool " + name, r);
+        }
     }
 
+    /**
+     * Create a RADOS pool and set a auid
+     *
+     * @param name
+     *            the name of the pool to be created
+     * @param auid
+     *            the owner ID for the new pool
+     * @throws RadosException
+     */
     public void poolCreate(String name, long auid) throws RadosException {
         this.verifyConnected(true);
-        rados.rados_pool_create_with_auid(this.clusterPtr.getPointer(0), name, auid);
+        int r = rados.rados_pool_create_with_auid(this.clusterPtr.getPointer(0), name, auid);
+        if (r < 0) {
+            throw new RadosException("Failed to create pool " + name + " with auid " + auid, r);
+        }
     }
 
+    /**
+     * Create a RADOS pool and set a auid and crushrule
+     *
+     * @param name
+     *            the name of the pool to be created
+     * @param auid
+     *            the owner ID for the new pool
+     * @param crushrule
+     *            the crushrule for this pool
+     * @throws RadosException
+     */
     public void poolCreate(String name, long auid, long crushrule) throws RadosException {
         this.verifyConnected(true);
-        rados.rados_pool_create_with_all(this.clusterPtr.getPointer(0), name, auid, crushrule);
+        int r = rados.rados_pool_create_with_all(this.clusterPtr.getPointer(0), name, auid, crushrule);
+        if (r < 0) {
+            throw new RadosException("Failed to create pool " + name + " with auid " + auid +
+                                     " and crushrule " + crushrule, r);
+        }
     }
 
     protected void finalize() throws Throwable {
