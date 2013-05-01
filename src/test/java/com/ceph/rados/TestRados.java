@@ -309,7 +309,7 @@ public final class TestRados extends TestCase {
             assertEquals("The snapshot names didn't match", snapname, snapnamebuf);
 
             long now = System.currentTimeMillis()/1000;
-            assertTrue("The timestamp was in the future", now < time);
+            assertTrue("The timestamp was in the future", now >= time);
 
             r.ioCtxDestroy(io);
         } catch (RadosException e) {
