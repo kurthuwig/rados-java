@@ -12,7 +12,7 @@
 
 package com.ceph.rbd.jna;
 
-
+import com.ceph.rbd.jna.RbdImageInfo;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.ptr.IntByReference;
@@ -29,4 +29,7 @@ public interface Rbd extends Library {
     int rbd_list(Pointer io, byte[] names, IntByReference size);
     int rbd_remove(Pointer io, String name);
     int rbd_rename(Pointer io, String srcname, String destname);
+    int rbd_open_read_only(Pointer io, String name, Pointer image, String snap_name);
+    int rbd_open(Pointer io, String name, Pointer image, String snap_name);
+    int rbd_stat(Pointer image, RbdImageInfo info, long infosize);
 }
