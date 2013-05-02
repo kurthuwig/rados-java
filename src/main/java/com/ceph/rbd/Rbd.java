@@ -51,11 +51,86 @@ public class Rbd {
      * @param size
      *         The size of the new image in bytes
      * @param order
+     *         Object/block size, as a power of two (object size == 1 << order)
+     * @throws RbdException
+     */
+    public void create(String name, long size, int order) throws RbdException {
+        IntByReference orderRef = new IntByReference(order);
+        int r = rbd.rbd_create(this.io, name, size, orderRef);
+        if (r < 0) {
+            throw new RbdException("Failed to create image " + name, r);
+        }
+    }
+
+    /**
+     * Create a new RBD image
+     *
+     * @param name
+     *         The name of the new image
+     * @param size
+     *         The size of the new image in bytes
      * @throws RbdException
      */
     public void create(String name, long size) throws RbdException {
-        IntByReference order = new IntByReference();
-        int r = rbd.rbd_create(this.io, name, size, order);
+        this.create(name, size, 0);
+    }
+
+    /**
+     * Create a new RBD v2 image
+     *
+     * @param name
+     *         The name of the new image
+     * @param size
+     *         The size of the new image in bytes
+     * @param features
+     *         Initial feature bits
+     * @param order
+     *         Object/block size, as a power of two (object size == 1 << order)
+     * @throws RbdException
+     */
+    public void create(String name, long size, long features, int order) throws RbdException {
+        IntByReference orderRef = new IntByReference(order);
+        int r = rbd.rbd_create2(this.io, name, size, features, orderRef);
+        if (r < 0) {
+            throw new RbdException("Failed to create image " + name, r);
+        }
+    }
+
+    /**
+     * Create a new RBD v2 image
+     *
+     * @param name
+     *         The name of the new image
+     * @param size
+     *         The size of the new image in bytes
+     * @param features
+     *         Initial feature bits
+     * @throws RbdException
+     */
+    public void create(String name, long size, long features) throws RbdException {
+        this.create(name, size, features, 0);
+    }
+
+    /**
+     * Create a new RBD v2 image
+     *
+     * @param name
+     *         The name of the new image
+     * @param size
+     *         The size of the new image in bytes
+     * @param features
+     *         Initial feature bits
+     * @param order
+     *         Object/block size, as a power of two (object size == 1 << order)
+     * @param stripe_unit
+     *         Stripe unit size, in bytes.
+     * @param stripe_count
+     *         Number of objects to stripe over before looping
+     * @throws RbdException
+     */
+    public void create(String name, long size, long features, int order, long stripe_unit, long stripe_count) throws RbdException {
+        IntByReference orderRef = new IntByReference(order);
+        int r = rbd.rbd_create3(this.io, name, size, features, orderRef, stripe_unit, stripe_count);
         if (r < 0) {
             throw new RbdException("Failed to create image " + name, r);
         }
