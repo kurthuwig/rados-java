@@ -151,6 +151,22 @@ public class Rbd {
     }
 
     /**
+     * Rename a RBD image
+     *
+     * @param srcName
+     *         The source name
+     * @param destName
+     *         The new name for the image
+     * @throws RbdException
+     */
+    public void rename(String srcName, String destName) throws RbdException {
+        int r = rbd.rbd_rename(this.io, srcName, destName);
+        if (r < 0) {
+            throw new RbdException("Failed to rename image " + srcName + " to " + destName, r);
+        }
+    }
+
+    /**
      * List all RBD images in this pool
      *
      * @return String[]

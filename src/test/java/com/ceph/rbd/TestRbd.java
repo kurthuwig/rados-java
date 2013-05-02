@@ -70,6 +70,7 @@ public final class TestRbd extends TestCase {
             IoCTX io = r.ioCtxCreate(this.pool);
 
             String imageName = "testimage1";
+            String newImageName = "testimage2";
 
             Rbd rbd = new Rbd(io);
             rbd.create(imageName, 10485760);
@@ -77,7 +78,9 @@ public final class TestRbd extends TestCase {
             String[] images = rbd.list();
             assertTrue("There were no images in the pool", images.length > 0);
 
-            rbd.remove(imageName);
+            rbd.rename(imageName, newImageName);
+
+            rbd.remove(newImageName);
 
             r.ioCtxDestroy(io);
         } catch (RbdException e) {

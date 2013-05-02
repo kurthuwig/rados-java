@@ -28,4 +28,5 @@ public interface Rbd extends Library {
     int rbd_create3(Pointer io, String name, long size, long features, IntByReference order, long stripe_unit, long stripe_count);
     int rbd_list(Pointer io, byte[] names, IntByReference size);
     int rbd_remove(Pointer io, String name);
+    int rbd_rename(Pointer io, String srcname, String destname);
 }
