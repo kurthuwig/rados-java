@@ -306,7 +306,7 @@ public class Rados {
      *
      * @return a int array with the minor, major and extra version
      */
-    public int[] getVersion() {
+    public static int[] getVersion() {
         IntByReference minor = new IntByReference();
         IntByReference major = new IntByReference();
         IntByReference extra = new IntByReference();

@@ -57,8 +57,7 @@ public final class TestRados extends TestCase {
         It's currently hardcoded to expect at least 0.48.0
      */
     public void testGetVersion() {
-        Rados r = new Rados(this.id);
-        int[] version = r.getVersion();
+        int[] version = Rados.getVersion();
         assertTrue(version[0] >= 0);
         assertTrue(version[1] >= 48);
         assertTrue(version[2] >= 0);
