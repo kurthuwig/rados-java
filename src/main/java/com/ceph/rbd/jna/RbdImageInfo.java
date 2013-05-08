@@ -16,14 +16,20 @@ import com.sun.jna.Structure;
 import java.util.List;
 import java.util.Arrays;
 
-public class RbdImageInfo extends Structure {
+public class RbdImageInfo extends Structure implements Structure.ByReference {
     public long size;
     public long obj_size;
     public long num_objs;
     public int order;
-    public String block_name_prefix;
+    public byte[] block_name_prefix;
     public long parent_pool;
-    public String parent_name;
+    public byte[] parent_name;
+
+    public RbdImageInfo() {
+        super();
+        this.block_name_prefix = new byte[24];
+        this.parent_name = new byte[96];
+    }
 
     protected List getFieldOrder() {
         return Arrays.asList("size", "obj_size", "num_objs", "order",

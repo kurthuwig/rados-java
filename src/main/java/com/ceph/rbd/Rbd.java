@@ -192,4 +192,35 @@ public class Rbd {
         return Native.toString(names).split("\0");
     }
 
+    /**
+     * Open a RBD image
+     *
+     * @param name
+     *         The name of the image you want to open
+     * @throws RbdException
+     * @return RbdImage
+     */
+    public RbdImage open(String name) throws RbdException {
+        Pointer p = new Memory(Pointer.SIZE);
+        int r = rbd.rbd_open(this.io, name, p, null);
+        if (r < 0) {
+            throw new RbdException("Failed to open image " + name, r);
+        }
+        return new RbdImage(p);
+    }
+
+    /**
+     * Close a RBD image
+     *
+     * @param image
+     *         The RbdImage object
+     * @throws RbdException
+     */
+    public void close(RbdImage image) throws RbdException {
+        int r = rbd.rbd_close(image.getPointer());
+        if (r < 0) {
+            throw new RbdException("Failed to close image", r);
+        }
+    }
+
 }

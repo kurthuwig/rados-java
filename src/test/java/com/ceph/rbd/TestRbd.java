@@ -13,6 +13,8 @@
 package com.ceph.rbd;
 
 import com.ceph.rbd.Rbd;
+import com.ceph.rbd.RbdImage;
+import com.ceph.rbd.jna.RbdImageInfo;
 import com.ceph.rbd.RbdException;
 import com.ceph.rados.Rados;
 import com.ceph.rados.RadosException;
@@ -69,16 +71,24 @@ public final class TestRbd extends TestCase {
             r.connect();
             IoCTX io = r.ioCtxCreate(this.pool);
 
+            long imageSize = 10485760;
             String imageName = "testimage1";
             String newImageName = "testimage2";
 
             Rbd rbd = new Rbd(io);
-            rbd.create(imageName, 10485760);
+            rbd.create(imageName, imageSize);
 
             String[] images = rbd.list();
             assertTrue("There were no images in the pool", images.length > 0);
 
             rbd.rename(imageName, newImageName);
+
+            RbdImage image = rbd.open(newImageName);
+            RbdImageInfo info = image.stat();
+
+            assertEquals("The size of the image didn't match", imageSize, info.size);
+
+            rbd.close(image);
 
             rbd.remove(newImageName);
 

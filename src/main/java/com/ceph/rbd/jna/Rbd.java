@@ -31,5 +31,6 @@ public interface Rbd extends Library {
     int rbd_rename(Pointer io, String srcname, String destname);
     int rbd_open_read_only(Pointer io, String name, Pointer image, String snap_name);
     int rbd_open(Pointer io, String name, Pointer image, String snap_name);
+    int rbd_close(Pointer image);
     int rbd_stat(Pointer image, RbdImageInfo info, long infosize);
 }
