@@ -16,6 +16,7 @@ import com.ceph.rbd.jna.RbdImageInfo;
 import com.sun.jna.Pointer;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
+import com.sun.jna.ptr.IntByReference;
 
 import static com.ceph.rbd.Library.rbd;
 
@@ -39,6 +40,12 @@ public class RbdImage {
         return this.image.getPointer(0);
     }
 
+    /**
+     * Get information about a RBD image
+     *
+     * @return RbdImageInfo
+     * @throws RbdException
+     */
     public RbdImageInfo stat() throws RbdException {
         RbdImageInfo info = new RbdImageInfo();
         int r = rbd.rbd_stat(this.getPointer(), info, 0);
@@ -46,5 +53,26 @@ public class RbdImage {
             throw new RbdException("Failed to stat the RBD image", r);
         }
         return info;
+    }
+
+    /**
+     * Find out if the format of the RBD image is the old format
+     * or not
+     *
+     * @return boolean
+     * @throws RbdException
+     */
+    public boolean isOldFormat() throws RbdException {
+        IntByReference old = new IntByReference();
+        int r = rbd.rbd_get_old_format(this.getPointer(), old);
+        if (r < 0) {
+            throw new RbdException("Failed to get the RBD format", r);
+        }
+
+        if (old.getValue() == 1) {
+            return true;
+        }
+
+        return false;
     }
 }

@@ -33,4 +33,5 @@ public interface Rbd extends Library {
     int rbd_open(Pointer io, String name, Pointer image, String snap_name);
     int rbd_close(Pointer image);
     int rbd_stat(Pointer image, RbdImageInfo info, long infosize);
+    int rbd_get_old_format(Pointer image, IntByReference old);
 }
