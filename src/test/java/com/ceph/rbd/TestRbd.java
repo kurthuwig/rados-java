@@ -162,4 +162,48 @@ public final class TestRbd extends TestCase {
             fail(e.getMessage() + ": " + e.getReturnValue());
         }
     }
+
+    public void testCreateAndClone() {
+        try {
+            String imageName = "baseimage";
+            long imageSize = 10485760;
+            String snapName = "mysnapshot";
+
+            // We only want layering and format 2
+            int features = (1<<0);
+
+            Rados r = new Rados(this.id);
+            r.confReadFile(new File(this.configFile));
+            r.connect();
+            IoCTX io = r.ioCtxCreate(this.pool);
+
+            Rbd rbd = new Rbd(io);
+            rbd.create(imageName, imageSize, features, 0);
+
+            RbdImage image = rbd.open(imageName);
+
+            boolean oldFormat = image.isOldFormat();
+
+            assertTrue("The image wasn't the new (2) format", !oldFormat);
+
+            image.snapCreate(snapName);
+            image.snapProtect(snapName);
+
+            rbd.clone(imageName, snapName, io, imageName + "-child1", features, 0);
+
+            rbd.remove(imageName + "-child1");
+
+            image.snapUnprotect(snapName);
+            image.snapRemove(snapName);
+
+            rbd.close(image);
+
+            rbd.remove(imageName);
+            r.ioCtxDestroy(io);
+        } catch (RbdException e) {
+            fail(e.getMessage() + ": " + e.getReturnValue());
+        } catch (RadosException e) {
+            fail(e.getMessage() + ": " + e.getReturnValue());
+        }
+    }
 }

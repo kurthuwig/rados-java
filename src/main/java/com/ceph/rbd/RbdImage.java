@@ -75,4 +75,60 @@ public class RbdImage {
 
         return false;
     }
+
+    /**
+     * Create a RBD snapshot
+     *
+     * @param snapName
+     *        The name for the snapshot
+     * @throws RbdException
+     */
+    public void snapCreate(String snapName) throws RbdException {
+        int r = rbd.rbd_snap_create(this.getPointer(), snapName);
+        if (r < 0) {
+            throw new RbdException("Failed to create snapshot " + snapName, r);
+        }
+    }
+
+    /**
+     * Remove a RBD snapshot
+     *
+     * @param snapName
+     *         The name of the snapshot
+     * @throws RbdException
+     */
+    public void snapRemove(String snapName) throws RbdException {
+        int r = rbd.rbd_snap_remove(this.getPointer(), snapName);
+        if (r < 0) {
+            throw new RbdException("Failed to remove snapshot " + snapName, r);
+        }
+    }
+
+    /**
+     * Protect a snapshot
+     *
+     * @param snapName
+     *         The name of the snapshot
+     * @throws RbdException
+     */
+    public void snapProtect(String snapName) throws RbdException {
+        int r = rbd.rbd_snap_protect(this.getPointer(), snapName);
+        if (r < 0) {
+            throw new RbdException("Failed to protect snapshot " + snapName, r);
+        }
+    }
+
+    /**
+     * Unprotect a RBD snapshot
+     *
+     * @param snapName
+     *         The name of the snapshot
+     * @throws RbdException
+     */
+    public void snapUnprotect(String snapName) throws RbdException {
+        int r = rbd.rbd_snap_unprotect(this.getPointer(), snapName);
+        if (r < 0) {
+            throw new RbdException("Failed to unprotect snapshot " + snapName, r);
+        }
+    }
 }

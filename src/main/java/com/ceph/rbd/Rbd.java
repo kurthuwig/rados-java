@@ -223,4 +223,60 @@ public class Rbd {
         }
     }
 
+    /**
+     * Clone a RBD image
+     *
+     * @param parentImage
+     *         The name of the parent image
+     * @param parentSnap
+     *         The snapshot of the parent image (has to be protected)
+     * @param childIo
+     *         The IoCTX for the child image
+     * @param childName
+     *         The name for the child image
+     * @param features
+     *         The RBD features
+     * @param order
+     *         Object/block size, as a power of two (object size == 1 << order)
+     * @param stripe_unit
+     *         Stripe unit size, in bytes.
+     * @param stripe_count
+     *         Number of objects to stripe over before looping
+     * @throws RbdException
+     */
+    public void clone(String parentImage, String parentSnap, IoCTX childIo,
+                      String childName, long features, int order, long stripe_unit,
+                      long stripe_count) throws RbdException {
+        IntByReference orderRef = new IntByReference(order);
+        int r = rbd.rbd_clone2(this.io, parentImage, parentSnap, childIo.getPointer(), childName, features, orderRef, stripe_unit, stripe_count);
+        if (r < 0) {
+            throw new RbdException("Failed to clone image " + parentImage + "@" + parentSnap + " to " + childName, r);
+        }
+    }
+
+    /**
+     * Clone a RBD image
+     *
+     * @param parentImage
+     *         The name of the parent image
+     * @param parentSnap
+     *         The snapshot of the parent image (has to be protected)
+     * @param childIo
+     *         The IoCTX for the child image
+     * @param childName
+     *         The name for the child image
+     * @param features
+     *         The RBD features
+     * @param order
+     *         Object/block size, as a power of two (object size == 1 << order)
+     * @throws RbdException
+     */
+    public void clone(String parentImage, String parentSnap, IoCTX childIo,
+                      String childName, long features, int order) throws RbdException {
+        IntByReference orderRef = new IntByReference(order);
+        int r = rbd.rbd_clone(this.io, parentImage, parentSnap, childIo.getPointer(), childName, features, orderRef);
+        if (r < 0) {
+            throw new RbdException("Failed to clone image " + parentImage + "@" + parentSnap + " to " + childName, r);
+        }
+    }
 }
