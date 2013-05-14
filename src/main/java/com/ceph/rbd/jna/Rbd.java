@@ -43,4 +43,5 @@ public interface Rbd extends Library {
     int rbd_snap_remove(Pointer image, String snapname);
     int rbd_snap_protect(Pointer image, String snapname);
     int rbd_snap_unprotect(Pointer image, String snapname);
+    long rbd_write(Pointer image, long offset, long len, byte[] buf);
 }

@@ -131,4 +131,33 @@ public class RbdImage {
             throw new RbdException("Failed to unprotect snapshot " + snapName, r);
         }
     }
+
+    /**
+     * Write data to an RBD image
+     *
+     * @param data
+     *         The to be written data
+     * @param offset
+     *         Where to start writing
+     */
+    public void write(byte[] data, long offset) throws RbdException {
+        long r = rbd.rbd_write(this.getPointer(), offset, data.length, data);
+        if (r < 0) {
+            throw new RbdException("Failed to write to RBD image", (int)r);
+        }
+
+        if (r != data.length) {
+            throw new RbdException("We wrote " + r + " bytes while we should have written " + data.length + " bytes");
+        }
+    }
+
+    /**
+     * Write data to an RBD image
+     *
+     * @param data
+     *         The to be written data
+     */
+    public void write(byte[] data) throws RbdException {
+        this.write(data, 0);
+    }
 }
