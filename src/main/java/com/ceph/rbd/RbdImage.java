@@ -19,6 +19,7 @@ import com.sun.jna.Native;
 import com.sun.jna.ptr.IntByReference;
 
 import static com.ceph.rbd.Library.rbd;
+import com.sun.jna.NativeLong;
 
 public class RbdImage {
 
@@ -130,5 +131,9 @@ public class RbdImage {
         if (r < 0) {
             throw new RbdException("Failed to unprotect snapshot " + snapName, r);
         }
+    }
+
+    public long read(long offset, byte[] buffer, long length) {
+        return rbd.rbd_read(this.getPointer(), offset, new NativeLong(length), buffer).longValue();
     }
 }
