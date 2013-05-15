@@ -19,6 +19,7 @@ import com.sun.jna.Native;
 import com.sun.jna.ptr.IntByReference;
 
 import static com.ceph.rbd.Library.rbd;
+import com.sun.jna.NativeLong;
 
 public class RbdImage {
 
@@ -159,5 +160,9 @@ public class RbdImage {
      */
     public void write(byte[] data) throws RbdException {
         this.write(data, 0);
+    }
+
+    public long read(long offset, byte[] buffer, long length) {
+        return rbd.rbd_read(this.getPointer(), offset, new NativeLong(length), buffer).longValue();
     }
 }

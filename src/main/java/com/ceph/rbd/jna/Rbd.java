@@ -12,11 +12,11 @@
 
 package com.ceph.rbd.jna;
 
-import com.ceph.rbd.jna.RbdImageInfo;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
-import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
+import com.sun.jna.ptr.IntByReference;
 
 public interface Rbd extends Library {
 
@@ -44,4 +44,5 @@ public interface Rbd extends Library {
     int rbd_snap_protect(Pointer image, String snapname);
     int rbd_snap_unprotect(Pointer image, String snapname);
     long rbd_write(Pointer image, long offset, long len, byte[] buf);
+    NativeLong rbd_read(Pointer image, long offset, NativeLong length, byte[] buffer);
 }
