@@ -162,6 +162,18 @@ public class RbdImage {
         this.write(data, 0);
     }
 
+    /**
+     * Read from an RBD image
+     *
+     * @param offset
+     *         Where to start reading
+     * @param buffer
+     *         The buffer to store the result
+     * @param length
+     *         The amount of bytes to read
+     * @return long
+     *          The amount of bytes read
+     */
     public long read(long offset, byte[] buffer, long length) {
         return rbd.rbd_read(this.getPointer(), offset, new NativeLong(length), buffer).longValue();
     }

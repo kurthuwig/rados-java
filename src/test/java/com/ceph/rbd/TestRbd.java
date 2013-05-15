@@ -207,7 +207,7 @@ public final class TestRbd extends TestCase {
         }
     }
 
-    public void testCreateAndWrite() {
+    public void testCreateAndWriteAndRead() {
         try {
             String imageName = "imageforwritetest";
             long imageSize = 10485760;
@@ -227,6 +227,10 @@ public final class TestRbd extends TestCase {
 
             String buf = "ceph";
             image.write(buf.getBytes());
+
+            byte[] data = new byte[buf.length()];
+            long bytes = image.read(0, data, buf.length());
+            assertEquals("Did din't get back what we wrote", new String(data), buf);
 
             rbd.close(image);
 
