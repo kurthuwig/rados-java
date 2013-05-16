@@ -24,9 +24,20 @@ import com.sun.jna.NativeLong;
 public class RbdImage {
 
     private Pointer image;
+    private String name;
 
-    public RbdImage(Pointer image) {
+    public RbdImage(Pointer image, String name) {
         this.image = image;
+        this.name = name;
+    }
+
+    /**
+     * Returns the name of the image
+     *
+     * @return String
+     */
+    public String getName() {
+        return this.name;
     }
 
     /**
@@ -140,16 +151,30 @@ public class RbdImage {
      *         The to be written data
      * @param offset
      *         Where to start writing
+     * @param length
+     *         The number of bytes to write
      */
-    public void write(byte[] data, long offset) throws RbdException {
-        long r = rbd.rbd_write(this.getPointer(), offset, data.length, data);
+    public void write(byte[] data, long offset, int length) throws RbdException {
+        long r = rbd.rbd_write(this.getPointer(), offset, length, data);
         if (r < 0) {
             throw new RbdException("Failed to write to RBD image", (int)r);
         }
 
-        if (r != data.length) {
-            throw new RbdException("We wrote " + r + " bytes while we should have written " + data.length + " bytes");
+        if (r != length) {
+            throw new RbdException("We wrote " + r + " bytes while we should have written " + length + " bytes");
         }
+    }
+
+    /**
+     * Write data to an RBD image
+     *
+     * @param data
+     *         The to be written data
+     * @param offset
+     *         Where to start writing
+     */
+    public void write(byte[] data, long offset) throws RbdException {
+        this.write(data, offset, data.length);
     }
 
     /**
@@ -159,7 +184,7 @@ public class RbdImage {
      *         The to be written data
      */
     public void write(byte[] data) throws RbdException {
-        this.write(data, 0);
+        this.write(data, 0, data.length);
     }
 
     /**

@@ -206,7 +206,7 @@ public class Rbd {
         if (r < 0) {
             throw new RbdException("Failed to open image " + name, r);
         }
-        return new RbdImage(p);
+        return new RbdImage(p, name);
     }
 
     /**
@@ -277,6 +277,22 @@ public class Rbd {
         int r = rbd.rbd_clone(this.io, parentImage, parentSnap, childIo.getPointer(), childName, features, orderRef);
         if (r < 0) {
             throw new RbdException("Failed to clone image " + parentImage + "@" + parentSnap + " to " + childName, r);
+        }
+    }
+
+    /**
+     * Copy a RBD image
+     *
+     * @param sourceImage
+     *         The source RbdImage
+     * @param destImage
+     *         The destination RbdImage
+     * @throws RbdException
+     */
+    public void copy(RbdImage sourceImage, RbdImage destImage) throws RbdException {
+        int r = rbd.rbd_copy2(sourceImage.getPointer(), destImage.getPointer());
+        if (r < 0) {
+            throw new RbdException("Failed to copy image " + sourceImage.getName() + " to " + destImage.getName(), r);
         }
     }
 }
