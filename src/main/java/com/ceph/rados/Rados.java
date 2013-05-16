@@ -101,7 +101,6 @@ public class Rados {
      * @throws RadosException
      */
     public String confGet(String option) throws RadosException {
-        this.verifyConnected(false);
         byte[] buf = new byte[256];
         int r = rados.rados_conf_get(this.clusterPtr.getPointer(0), option, buf, buf.length);
         if (r < 0) {
