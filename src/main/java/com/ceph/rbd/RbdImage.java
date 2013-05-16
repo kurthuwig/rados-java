@@ -155,6 +155,10 @@ public class RbdImage {
      *         The number of bytes to write
      */
     public void write(byte[] data, long offset, int length) throws RbdException {
+        if (length < 1) {
+            return;
+        }
+
         long r = rbd.rbd_write(this.getPointer(), offset, length, data);
         if (r < 0) {
             throw new RbdException("Failed to write to RBD image", (int)r);

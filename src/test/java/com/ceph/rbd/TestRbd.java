@@ -230,6 +230,8 @@ public final class TestRbd extends TestCase {
             String buf = "ceph";
             image.write(buf.getBytes());
 
+            image.write(buf.getBytes(), buf.length(), 0);
+
             byte[] data = new byte[buf.length()];
             long bytes = image.read(0, data, buf.length());
             assertEquals("Did din't get back what we wrote", new String(data), buf);
