@@ -13,10 +13,14 @@
 package com.ceph.rbd;
 
 import com.ceph.rbd.jna.RbdImageInfo;
+import com.ceph.rbd.jna.RbdSnapInfo;
 import com.sun.jna.Pointer;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.PointerByReference;
+import java.util.List;
+import java.util.ArrayList;
 
 import static com.ceph.rbd.Library.rbd;
 import com.sun.jna.NativeLong;
@@ -164,6 +168,40 @@ public class RbdImage {
         }
 
         return false;
+    }
+
+    /**
+     * List all snapshots
+     *
+     * @return List
+     * @throws RbdException
+     */
+    public List<RbdSnapInfo> snapList() throws RbdException {
+        IntByReference numSnaps = new IntByReference(16);
+        PointerByReference snaps = new PointerByReference();
+        List<RbdSnapInfo> list = new ArrayList<RbdSnapInfo>();
+        RbdSnapInfo snapInfo, snapInfos[];
+
+        while (true) {
+            int r = rbd.rbd_snap_list(this.getPointer(), snaps, numSnaps);
+            if (r >= 0) {
+                numSnaps.setValue(r);
+                break;
+            } else {
+                throw new RbdException("Failed listing snapshots", r);
+            }
+        }
+
+        Pointer p = snaps.getValue();
+        snapInfo = new RbdSnapInfo(p);
+        snapInfos = (RbdSnapInfo[]) snapInfo.toArray(numSnaps.getValue());
+
+        for (int i = 0; i < numSnaps.getValue(); i++) {
+            list.add(snapInfos[i]);
+        }
+
+        rbd.rbd_snap_list_end(snaps);
+        return list;
     }
 
     /**

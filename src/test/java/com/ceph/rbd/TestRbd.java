@@ -15,11 +15,14 @@ package com.ceph.rbd;
 import com.ceph.rbd.Rbd;
 import com.ceph.rbd.RbdImage;
 import com.ceph.rbd.jna.RbdImageInfo;
+import com.ceph.rbd.jna.RbdSnapInfo;
 import com.ceph.rbd.RbdException;
 import com.ceph.rados.Rados;
 import com.ceph.rados.RadosException;
 import com.ceph.rados.IoCTX;
 import java.io.File;
+import java.util.List;
+import java.util.ArrayList;
 import java.lang.IllegalArgumentException;
 import junit.framework.*;
 import java.security.SecureRandom;
@@ -190,6 +193,9 @@ public final class TestRbd extends TestCase {
 
             image.snapCreate(snapName);
             image.snapProtect(snapName);
+
+            List<RbdSnapInfo> snaps = image.snapList();
+            assertEquals("There should only be one snapshot", 1, snaps.size());
 
             rbd.clone(imageName, snapName, io, imageName + "-child1", features, 0);
 
