@@ -43,6 +43,7 @@ public interface Rbd extends Library {
     int rbd_snap_remove(Pointer image, String snapname);
     int rbd_snap_protect(Pointer image, String snapname);
     int rbd_snap_unprotect(Pointer image, String snapname);
+    int rbd_snap_is_protected(Pointer image, String snap_name, IntByReference is_protected);
     long rbd_write(Pointer image, long offset, long len, byte[] buf);
     NativeLong rbd_read(Pointer image, long offset, NativeLong length, byte[] buffer);
     int rbd_copy2(Pointer source_image, Pointer dest_image);

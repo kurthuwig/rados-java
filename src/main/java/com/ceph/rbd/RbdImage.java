@@ -145,6 +145,28 @@ public class RbdImage {
     }
 
     /**
+     * Tells if a snapshot is protected or not
+     *
+     * @param snapname
+     *         The name of the snapshot
+     * @return boolean
+     * @throws RbdException
+     */
+    public boolean snapIsProtected(String snapName) throws RbdException {
+        IntByReference isProtected = new IntByReference();
+        int r = rbd.rbd_snap_is_protected(this.getPointer(), snapName, isProtected);
+        if (r < 0) {
+            throw new RbdException("Failed to find out if snapshot " + snapName +  " is protected", r);
+        }
+
+        if (isProtected.getValue() == 1) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Write data to an RBD image
      *
      * @param data

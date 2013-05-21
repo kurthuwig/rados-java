@@ -195,6 +195,9 @@ public final class TestRbd extends TestCase {
 
             rbd.remove(imageName + "-child1");
 
+            boolean isProtected = image.snapIsProtected(snapName);
+            assertTrue("The snapshot was not protected", isProtected);
+
             image.snapUnprotect(snapName);
             image.snapRemove(snapName);
 
