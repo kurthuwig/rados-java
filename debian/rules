@@ -1,0 +1,50 @@
+#!/usr/bin/make -f
+
+export DH_VERBOSE=1
+export DH_OPTIONS
+
+VERSION := $(shell cat build.properties |grep version|cut -d '=' -f 2)
+
+configure: configure-stamp
+configure-stamp:
+	dh_testdir
+	touch configure-stamp
+
+build: build-indep
+
+build-indep: build-indep-stamp
+
+build-indep-stamp: configure
+	ant clean
+	ant jar
+	touch $@
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-arch-stamp build-indep-stamp configure-stamp
+	dh_clean
+
+install:
+	dh_testdir
+	dh_testroot
+	dh_prep -s
+
+	mkdir -p debian/tmp/usr/share/java
+	cp target/rados-${VERSION}.jar debian/tmp/usr/share/java
+	dh_link usr/share/java/rados-${VERSION}.jar usr/share/java/rados.jar
+
+	dh_installdirs
+	dh_install
+
+binary: install
+	dh_install
+	dh_installchangelogs
+	dh_installdocs
+	dh_link
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
