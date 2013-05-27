@@ -41,7 +41,7 @@ public class RadosException extends Exception {
      *         The return value of the rados_ call
      */
     public RadosException(String message, int returnValue) {
-        super(message);
+        super(message + " (" + returnValue + ")");
         this.returnValue = returnValue;
     }
 

@@ -48,8 +48,7 @@ public class Rados {
      *
      */
     public Rados() {
-        this.clusterPtr = new Memory(Pointer.SIZE);
-        rados.rados_create(this.clusterPtr, "");
+        this(null);
     }
 
     /**
