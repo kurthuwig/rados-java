@@ -63,9 +63,9 @@ public interface Rados extends Library {
     int rados_objects_list_open(Pointer ioctx, Pointer list);
     int rados_objects_list_next(Pointer list, Pointer entry, byte[] key);
     void rados_objects_list_close(Pointer list);
-    int rados_write(Pointer ioctx, String oid, String buf, long len, long off);
-    int rados_write_full(Pointer ioctx, String oid, String buf, long len);
-    int rados_append(Pointer ioctx, String oid, String buf, long len);
+    int rados_write(Pointer ioctx, String oid, byte[] buf, int len, long off);
+    int rados_write_full(Pointer ioctx, String oid, byte[] buf, int len);
+    int rados_append(Pointer ioctx, String oid, byte[] buf, int len);
     int rados_read(Pointer ioctx, String oid, byte[] buf, long len, long off);
     int rados_remove(Pointer ioctx, String oid);
     int rados_trunc(Pointer ioctx, String oid, long size);

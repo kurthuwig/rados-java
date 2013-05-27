@@ -156,13 +156,13 @@ public class IoCTX {
      *          The offset when writing
      * @throws RadosException
      */
-    public void write(String oid, String buf, long offset) throws RadosException, IllegalArgumentException {
+    public void write(String oid, byte[] buf, long offset) throws RadosException, IllegalArgumentException {
         if (offset < 0) {
             throw new IllegalArgumentException("Offset shouldn't be a negative value");
         }
-        int r = rados.rados_write(this.getPointer(), oid, buf, buf.length(), offset);
+        int r = rados.rados_write(this.getPointer(), oid, buf, buf.length, offset);
         if (r < 0) {
-            throw new RadosException("Failed writing " + buf.length() + " bytes with offset " + offset + " to " + oid, r);
+            throw new RadosException("Failed writing " + buf.length + " bytes with offset " + offset + " to " + oid, r);
         }
     }
 
@@ -175,11 +175,39 @@ public class IoCTX {
      *          The content to write
      * @throws RadosException
      */
-    public void write(String oid, String buf) throws RadosException {
-        int r = rados.rados_write_full(this.getPointer(), oid, buf, buf.length());
+    public void write(String oid, byte[] buf) throws RadosException {
+        int r = rados.rados_write_full(this.getPointer(), oid, buf, buf.length);
         if (r < 0) {
-            throw new RadosException("Failed writing " + buf.length() + " bytes to " + oid, r);
+            throw new RadosException("Failed writing " + buf.length + " bytes to " + oid, r);
         }
+    }
+
+    /**
+     * Write to an object without an offset
+     *
+     * @param oid
+     *          The object to write to
+     * @param buf
+     *          The content to write
+     * @param offset
+     *          The offset when writing
+     * @throws RadosException
+     */
+    public void write(String oid, String buf, long offset) throws RadosException {
+        this.write(oid, buf.getBytes(), offset);
+    }
+
+    /**
+     * Write to an object without an offset
+     *
+     * @param oid
+     *          The object to write to
+     * @param buf
+     *          The content to write
+     * @throws RadosException
+     */
+    public void write(String oid, String buf) throws RadosException {
+        this.write(oid, buf.getBytes());
     }
 
     /**
@@ -252,11 +280,24 @@ public class IoCTX {
      *           The data to append
      * @throws RadosException
      */
-    public void append(String oid, String buf) throws RadosException {
-        int r = rados.rados_append(this.getPointer(), oid, buf, buf.length());
+    public void append(String oid, byte[] buf) throws RadosException {
+        int r = rados.rados_append(this.getPointer(), oid, buf, buf.length);
         if (r < 0) {
-            throw new RadosException("Failed appending " + buf.length() + " bytes to " + oid, r);
+            throw new RadosException("Failed appending " + buf.length + " bytes to " + oid, r);
         }
+    }
+
+    /**
+     * Append data to an object
+     *
+     * @param oid
+     *           The name to append to
+     * @param buf
+     *           The data to append
+     * @throws RadosException
+     */
+    public void append(String oid, String buf) throws RadosException {
+        this.append(oid, buf.getBytes());
     }
 
     /**
