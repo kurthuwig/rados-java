@@ -233,21 +233,20 @@ public class IoCTX {
      *          Amount of bytes to read
      * @param offset
      *          The offset where to start reading
-     * @throws RadosException
+     * @param buf
+     *          The buffer to store the result
+     * @return Number of bytes read or negative on error
+     * @throws IllegalArgumentException
      */
-    public String read(String oid, int length, long offset) throws RadosException, IllegalArgumentException {
+    public int read(String oid, int length, long offset, byte[] buf) throws IllegalArgumentException {
         if (length < 0) {
             throw new IllegalArgumentException("Length shouldn't be a negative value");
         }
         if (offset < 0) {
             throw new IllegalArgumentException("Offset shouldn't be a negative value");
         }
-        byte[] buf = new byte[length];
-        int r = rados.rados_read(this.getPointer(), oid, buf, length, offset);
-        if (r < 0) {
-            throw new RadosException("Failed reading " + length + " bytes with offset " + offset + " from " + oid, r);
-        }
-        return new String(buf);
+
+        return rados.rados_read(this.getPointer(), oid, buf, length, offset);
     }
 
     /**
