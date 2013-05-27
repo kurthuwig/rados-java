@@ -243,12 +243,16 @@ public final class TestRbd extends TestCase {
             RbdImage image = rbd.open(imageName);
 
             String buf = "ceph";
+
+            // Write the initial data
             image.write(buf.getBytes());
 
-            image.write(buf.getBytes(), buf.length(), 0);
+            // Start writing after what we just wrote
+            int length = image.write(buf.getBytes(), buf.length(), buf.length());
 
             byte[] data = new byte[buf.length()];
-            long bytes = image.read(0, data, buf.length());
+            int bytes = image.read(0, data, buf.length());
+            assertEquals("The number of bytes we wrote wasn't the same as we read", length, bytes);
             assertEquals("Did din't get back what we wrote", new String(data), buf);
 
             rbd.close(image);

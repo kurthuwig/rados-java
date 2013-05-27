@@ -219,20 +219,15 @@ public class RbdImage {
      *         Where to start writing
      * @param length
      *         The number of bytes to write
+     * @return The number of bytes written or a negative value on failure
+     * @throws RbdException
      */
-    public void write(byte[] data, long offset, int length) throws RbdException {
+    public int write(byte[] data, long offset, int length) throws RbdException {
         if (length < 1) {
-            return;
+            throw new RbdException("There should be at least one byte to write");
         }
 
-        long r = rbd.rbd_write(this.getPointer(), offset, length, data);
-        if (r < 0) {
-            throw new RbdException("Failed to write to RBD image", (int)r);
-        }
-
-        if (r != length) {
-            throw new RbdException("We wrote " + r + " bytes while we should have written " + length + " bytes");
-        }
+        return rbd.rbd_write(this.getPointer(), offset, length, data);
     }
 
     /**
@@ -243,8 +238,8 @@ public class RbdImage {
      * @param offset
      *         Where to start writing
      */
-    public void write(byte[] data, long offset) throws RbdException {
-        this.write(data, offset, data.length);
+    public int write(byte[] data, long offset) throws RbdException {
+        return this.write(data, offset, data.length);
     }
 
     /**
@@ -253,8 +248,8 @@ public class RbdImage {
      * @param data
      *         The to be written data
      */
-    public void write(byte[] data) throws RbdException {
-        this.write(data, 0, data.length);
+    public int write(byte[] data) throws RbdException {
+        return this.write(data, 0, data.length);
     }
 
     /**
@@ -266,10 +261,10 @@ public class RbdImage {
      *         The buffer to store the result
      * @param length
      *         The amount of bytes to read
-     * @return long
+     * @return int
      *          The amount of bytes read
      */
-    public long read(long offset, byte[] buffer, long length) {
-        return rbd.rbd_read(this.getPointer(), offset, new NativeLong(length), buffer).longValue();
+    public int read(long offset, byte[] buffer, int length) {
+        return rbd.rbd_read(this.getPointer(), offset, length, buffer);
     }
 }
