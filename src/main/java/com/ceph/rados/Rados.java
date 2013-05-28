@@ -208,7 +208,7 @@ public class Rados {
                                      " and crushrule " + crushrule, r);
         }
     }
-    
+
     /**
      * Delete a RADOS pool
      *
@@ -220,7 +220,7 @@ public class Rados {
         this.verifyConnected(true);
         int r = rados.rados_pool_delete(this.clusterPtr.getPointer(0), name);
         if (r < 0) {
-            throw new RadosException("Failed to create pool " + name, r);
+            throw new RadosException("Failed to delete pool " + name, r);
         }
     }
 
