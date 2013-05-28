@@ -219,15 +219,17 @@ public class RbdImage {
      *         Where to start writing
      * @param length
      *         The number of bytes to write
-     * @return The number of bytes written or a negative value on failure
      * @throws RbdException
      */
-    public int write(byte[] data, long offset, int length) throws RbdException {
+    public void write(byte[] data, long offset, int length) throws RbdException {
         if (length < 1) {
             throw new RbdException("There should be at least one byte to write");
         }
 
-        return rbd.rbd_write(this.getPointer(), offset, length, data);
+        int r = rbd.rbd_write(this.getPointer(), offset, length, data);
+        if (r < 0) {
+            throw new RbdException("Failed writing " + length + " bytes starting at offset " + offset, r);
+        }
     }
 
     /**
@@ -238,8 +240,8 @@ public class RbdImage {
      * @param offset
      *         Where to start writing
      */
-    public int write(byte[] data, long offset) throws RbdException {
-        return this.write(data, offset, data.length);
+    public void write(byte[] data, long offset) throws RbdException {
+        this.write(data, offset, data.length);
     }
 
     /**
@@ -248,8 +250,8 @@ public class RbdImage {
      * @param data
      *         The to be written data
      */
-    public int write(byte[] data) throws RbdException {
-        return this.write(data, 0, data.length);
+    public void write(byte[] data) throws RbdException {
+        this.write(data, 0, data.length);
     }
 
     /**

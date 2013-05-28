@@ -248,11 +248,10 @@ public final class TestRbd extends TestCase {
             image.write(buf.getBytes());
 
             // Start writing after what we just wrote
-            int length = image.write(buf.getBytes(), buf.length(), buf.length());
+            image.write(buf.getBytes(), buf.length(), buf.length());
 
             byte[] data = new byte[buf.length()];
-            int bytes = image.read(0, data, buf.length());
-            assertEquals("The number of bytes we wrote wasn't the same as we read", length, bytes);
+            image.read(0, data, buf.length());
             assertEquals("Did din't get back what we wrote", new String(data), buf);
 
             rbd.close(image);
