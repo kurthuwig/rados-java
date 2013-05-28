@@ -42,6 +42,7 @@ public interface Rados extends Library {
     int rados_pool_create_with_auid(Pointer cluster, String name, long auid);
     int rados_pool_create_with_all(Pointer cluster, String name, long auid, long crushrule);
     int rados_pool_create_with_crush_rule(Pointer cluster, String name, long crushrule);
+    int rados_pool_delete(Pointer cluster, String name);
     int rados_pool_list(Pointer cluster, byte[] buf, int len);
     long rados_pool_lookup(Pointer cluster, String name);
     int rados_pool_reverse_lookup(Pointer cluster, long id, byte[] buf, long len);
