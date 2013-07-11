@@ -280,9 +280,23 @@ public class IoCTX {
      * @throws RadosException
      */
     public void append(String oid, byte[] buf) throws RadosException {
-        int r = rados.rados_append(this.getPointer(), oid, buf, buf.length);
+        this.append(oid, buf, buf.length);
+    }
+    
+    /**
+     * 
+     * @param oid
+     *           The name to append to
+     * @param buf
+     *           The data to append
+     * @param len
+     *           The number of bytes to write from buf
+     * @throws RadosException
+     */
+    public void append(String oid, byte[] buf, int len) throws RadosException {
+        int r = rados.rados_append(this.getPointer(), oid, buf, len);
         if (r < 0) {
-            throw new RadosException("Failed appending " + buf.length + " bytes to " + oid, r);
+            throw new RadosException("Failed appending " + len + " bytes to " + oid, r);
         }
     }
 
