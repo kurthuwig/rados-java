@@ -24,8 +24,13 @@ import com.ceph.rados.jna.RadosClusterInfo;
 import com.ceph.rados.jna.RadosObjectInfo;
 import com.ceph.rados.jna.RadosPoolInfo;
 import com.ceph.rados.IoCTX;
+
 import java.io.File;
 import java.lang.IllegalArgumentException;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.Random;
+
 import junit.framework.*;
 
 public final class TestRados extends TestCase {
@@ -270,6 +275,67 @@ public final class TestRados extends TestCase {
             r.ioCtxDestroy(io);
         } catch (RadosException e) {
             fail(e.getMessage() + ": " + e.getReturnValue());
+        }
+    }
+
+    /**
+     * This test creates an object, appends some data and removes it afterwards
+     */
+    public void testIoCtxWriteAndAppendBytes() {
+        Rados r = null;
+        IoCTX io = null;
+        /**
+         * The object we will write to with the data
+         */
+        String oid = "rados-java";
+
+        try {
+            r = new Rados(this.id);
+            r.confReadFile(new File(this.configFile));
+            r.connect();
+
+            io = r.ioCtxCreate(this.pool);
+
+            byte[] buffer = new byte[20];
+            // use a fix seed so that we always get the same data
+            new Random(42).nextBytes(buffer);
+
+            io.write(oid, buffer);
+
+            /**
+             * We simply append the parts of the already written data
+             */
+            io.append(oid, buffer, buffer.length / 2);
+
+            int expectedFileSize = buffer.length + buffer.length / 2;
+            assertEquals("The size doesn't match after the append", expectedFileSize, io.stat(oid).getSize());
+
+            byte[] readBuffer = new byte[expectedFileSize];
+            io.read(oid, expectedFileSize, 0, readBuffer);
+            for (int i = 0; i < buffer.length; i++) {
+                assertEquals(buffer[i], readBuffer[i]);
+            }
+            for (int i = 0; i < buffer.length / 2; i++) {
+                assertEquals(buffer[i], readBuffer[i + buffer.length]);
+            }
+        } catch (RadosException e) {
+            fail(e.getMessage() + ": " + e.getReturnValue());
+        } finally {
+            cleanupObject(r, io, oid);
+        }
+    }
+
+    private void cleanupObject(Rados r, IoCTX io, String oid) {
+        try {
+            if(r != null) {
+                if(io != null) {
+                    io.remove(oid);
+                }
+
+                r.ioCtxDestroy(io);
+            }
+        }
+        catch (RadosException e) {
         }
     }
 
