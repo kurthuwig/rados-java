@@ -24,6 +24,7 @@ import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
+import com.sun.jna.ptr.PointerByReference;
 import com.sun.jna.Pointer;
 
 public interface Rados extends Library {
@@ -31,7 +32,7 @@ public interface Rados extends Library {
     Rados INSTANCE = (Rados) Native.loadLibrary("rados", Rados.class);
 
     void rados_version(IntByReference major, IntByReference minor, IntByReference extra);
-    int rados_create(Pointer cluster, String id);
+    int rados_create(PointerByReference cluster, String id);
     int rados_conf_read_file(Pointer cluster, String path);
     int rados_conf_set(Pointer cluster, String option, String value);
     int rados_conf_get(Pointer cluster, String option, byte[] buf, int len);
