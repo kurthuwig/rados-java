@@ -33,6 +33,8 @@ import java.util.Random;
 
 import junit.framework.*;
 
+import com.sun.jna.Pointer;
+
 public final class TestRados extends TestCase {
 
     /**
@@ -49,6 +51,7 @@ public final class TestRados extends TestCase {
         * RADOS_JAVA_CONFIG_FILE
         * RADOS_JAVA_POOL
      */
+    @Override
     public void setUp() {
         if (System.getenv("RADOS_JAVA_CONFIG_FILE") != null) {
             this.configFile = System.getenv("RADOS_JAVA_CONFIG_FILE");
@@ -390,4 +393,34 @@ public final class TestRados extends TestCase {
         }
     }
 
+    static class RadosFinalizeTest extends Rados {
+
+        public RadosFinalizeTest(String id) {
+            super(id);
+            // System.err.println(String.format("Initialized with clusterptr: %x, %s", Pointer.nativeValue(this.clusterPtr), this.toString()));
+        }
+
+        @Override
+        protected void finalize() throws Throwable {
+            assertTrue(Pointer.nativeValue(this.clusterPtr) > 0);
+            // System.err.println(String.format("Finalizing with clusterptr: %x, %s", Pointer.nativeValue(this.clusterPtr), this.toString()));
+            super.finalize();
+        }
+    }
+
+    public void testRadosFinalization() {
+        for (int i = 0; i < 10; i++) {
+            RadosFinalizeTest r = new RadosFinalizeTest(this.id);
+            try {
+                r.confReadFile(new File(this.configFile));
+                r.connect();
+            } catch (RadosException e) {
+                fail();
+            }
+
+            r = null;
+            System.gc();
+            System.runFinalization();
+        }
+    }
 }
