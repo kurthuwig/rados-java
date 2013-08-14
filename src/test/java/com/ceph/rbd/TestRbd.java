@@ -309,4 +309,37 @@ public final class TestRbd extends TestCase {
             fail(e.getMessage() + ": " + e.getReturnValue());
         }
     }
+
+    public void testResize() {
+        try {
+            String imageName = "imageforresizetest";
+            long initialSize = 10485760;
+            long newSize = initialSize * 2;
+
+            // We only want layering and format 2
+            int features = (1<<0);
+
+            Rados r = new Rados(this.id);
+            r.confReadFile(new File(this.configFile));
+            r.connect();
+            IoCTX io = r.ioCtxCreate(this.pool);
+
+            Rbd rbd = new Rbd(io);
+            rbd.create(imageName, initialSize, features, 0);
+            RbdImage image = rbd.open(imageName);
+            image.resize(newSize);
+            RbdImageInfo info = image.stat();
+
+            assertEquals("The new size of the image didn't match", newSize, info.size);
+
+            rbd.close(image);
+
+            rbd.remove(imageName);
+            r.ioCtxDestroy(io);
+        } catch (RbdException e) {
+            fail(e.getMessage() + ": " + e.getReturnValue());
+        } catch (RadosException e) {
+            fail(e.getMessage() + ": " + e.getReturnValue());
+        }
+    }
 }

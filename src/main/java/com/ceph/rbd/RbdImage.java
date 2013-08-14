@@ -269,4 +269,18 @@ public class RbdImage {
     public int read(long offset, byte[] buffer, int length) {
         return rbd.rbd_read(this.getPointer(), offset, length, buffer);
     }
+
+    /**
+     * Resize an RBD image
+     *
+     * @param size
+     *         The new size for the RBD image
+     * @throws RbdException
+     */
+    public void resize(long size) throws RbdException {
+        int r = rbd.rbd_resize(this.getPointer(), size);
+        if (r < 0) {
+            throw new RbdException("Failed to resize the RBD image", r);
+        }
+    }
 }
