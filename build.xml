@@ -58,7 +58,7 @@
     </target>
 
     <target name="test" depends="buildtests">
-        <junit printsummary="yes" showoutput="yes" fork="yes" forkMode="perBatch">
+        <junit printsummary="yes" showoutput="yes" fork="yes" forkMode="perBatch" logfailedtests="yes">
             <sysproperty key="jna.nosys" value="true"/>
             <formatter type="plain" />
             <classpath refid="test.classpath" />
