@@ -216,6 +216,61 @@ public class Rbd {
     }
 
     /**
+     * Open a RBD image with a specific snapshot
+     *
+     * @param name
+     *         The name of the image you want to open
+     * @param snapshot
+     *         The name of the snapshot to open
+     * @throws RbdException
+     * @return RbdImage
+     */
+    public RbdImage open(String name, String snapName) throws RbdException {
+        Pointer p = new Memory(Pointer.SIZE);
+        int r = rbd.rbd_open(this.io, name, p, snapName);
+        if (r < 0) {
+            throw new RbdException("Failed to open image " + name, r);
+        }
+        return new RbdImage(p, name);
+    }
+
+    /**
+     * Open a RBD image read only
+     *
+     * @param name
+     *         The name of the image you want to open
+     * @throws RbdException
+     * @return RbdImage
+     */
+    public RbdImage openReadOnly(String name) throws RbdException {
+        Pointer p = new Memory(Pointer.SIZE);
+        int r = rbd.rbd_open_read_only(this.io, name, p, null);
+        if (r < 0) {
+            throw new RbdException("Failed to open image " + name, r);
+        }
+        return new RbdImage(p, name);
+    }
+
+    /**
+     * Open a RBD image with a specific snapshot read only
+     *
+     * @param name
+     *         The name of the image you want to open
+     * @param snapshot
+     *         The name of the snapshot to open
+     * @throws RbdException
+     * @return RbdImage
+     */
+    public RbdImage openReadOnly(String name, String snapName) throws RbdException {
+        Pointer p = new Memory(Pointer.SIZE);
+        int r = rbd.rbd_open_read_only(this.io, name, p, snapName);
+        if (r < 0) {
+            throw new RbdException("Failed to open image " + name, r);
+        }
+        return new RbdImage(p, name);
+    }
+
+    /**
      * Close a RBD image
      *
      * @param image
