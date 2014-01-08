@@ -250,16 +250,7 @@ public final class TestRados extends TestCase {
             String[] objects = io.listObjects();
             assertTrue("We expect at least one object in the pool", objects.length > 0);
 
-            byte[] buf = new byte[content.length()];
-            int len = io.read(oid, content.length(), 0, buf);
-            RadosObjectInfo info = io.stat(oid);
-
-            assertEquals("The object names didn't match", oid, info.getOid());
-            assertEquals("The size of what we wrote doesn't match with the stat", content.length(), info.getSize());
-            assertEquals("The content we read was different from what we wrote", content, new String(buf));
-
-            long now = System.currentTimeMillis()/1000;
-            assertFalse("The mtime was in the future", now < info.getMtime());
+            verifyDocument(io, oid, content.getBytes());
 
             /**
              * We simply append the already written data
@@ -326,6 +317,59 @@ public final class TestRados extends TestCase {
         } finally {
             cleanupObject(r, io, oid);
         }
+    }
+
+    /**
+     * Use IOContext.writeFull to create a new object, than again writeFull with less data and verify
+     * that the file was truncated.
+     */
+    public void testIoCtxWriteFull() throws Exception {
+        /**
+         * The object we will write to with the data
+         */
+        Rados r = null;
+        IoCTX io = null;
+        String oid = "rados-java_writeFull";
+        byte[] content = "junit wrote this".getBytes();
+
+        try {
+            r = new Rados(this.id);
+            r.confReadFile(new File(this.configFile));
+            r.connect();
+            io = r.ioCtxCreate(this.pool);
+
+            io.writeFull(oid, content, content.length);
+
+            String[] objects = io.listObjects();
+            assertTrue("We expect at least one object in the pool", objects.length > 0);
+
+            verifyDocument(io, oid, content);
+
+            // only write the first 4 bytes
+            io.writeFull(oid, content, 4);
+            assertEquals("The size doesn't match after the smaller writeFull", 4, io.stat(oid).getSize());
+
+            verifyDocument(io, oid, Arrays.copyOf(content, 4));
+        } catch (RadosException e) {
+            fail(e.getMessage() + ": " + e.getReturnValue());
+        }
+        finally {
+            cleanupObject(r, io, oid);
+        }
+    }
+
+    private void verifyDocument(IoCTX io, String oid, byte[] content) throws RadosException {
+        byte[] buf = new byte[content.length];
+        int len = io.read(oid, content.length, 0, buf);
+        assertEquals(len, content.length);
+        RadosObjectInfo info = io.stat(oid);
+
+        assertEquals("The object names didn't match", oid, info.getOid());
+        assertEquals("The size of what we wrote doesn't match with the stat", content.length, info.getSize());
+        assertTrue("The content we read was different from what we wrote", Arrays.equals(content, buf));
+
+        long now = System.currentTimeMillis()/1000;
+        assertFalse("The mtime was in the future", now < info.getMtime());
     }
 
     private void cleanupObject(Rados r, IoCTX io, String oid) {

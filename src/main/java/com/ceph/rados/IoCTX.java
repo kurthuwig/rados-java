@@ -176,9 +176,25 @@ public class IoCTX {
      * @throws RadosException
      */
     public void write(String oid, byte[] buf) throws RadosException {
-        int r = rados.rados_write_full(this.getPointer(), oid, buf, buf.length);
+        this.writeFull(oid, buf, buf.length);
+    }
+
+    /**
+     * Write an entire object
+     * The object is filled with the provided data. If the object exists, it is atomically truncated and then written.
+     *
+     * @param oid
+     *          The object to write to
+     * @param buf
+     *          The content to write
+     * @param len
+     *          The length of the data to write
+     * @throws RadosException
+     */
+    public void writeFull(String oid, byte[] buf, int len) throws RadosException {
+        int r = rados.rados_write_full(this.getPointer(), oid, buf, len);
         if (r < 0) {
-            throw new RadosException("Failed writing " + buf.length + " bytes to " + oid, r);
+            throw new RadosException("Failed writing " + len + " bytes to " + oid, r);
         }
     }
 
