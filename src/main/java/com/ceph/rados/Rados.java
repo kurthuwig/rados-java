@@ -45,6 +45,22 @@ public class Rados {
         this.clusterPtr = clusterPtr.getValue();
     }
 
+
+	/** 
+	 * Construct a RADOS Object which invokes rados_create2
+	 *
+	 * @param clustername The name of the cluster (usually "ceph").
+	 * @param name The name of the user (e.g., client.admin, client.user)
+	 * @param flags Flag options (future use).
+	 */
+
+	public Rados (String clustername, String name, int flags) {
+		PointerByReference clusterPtr = new PointerByReference();
+		rados.rados_create2(clusterPtr, clustername, name, flags);
+		this.clusterPtr = clusterPtr.getValue();
+	}
+
+
     /**
      * Construct a RADOS Object which invokes rados_create
      *

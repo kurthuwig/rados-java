@@ -33,6 +33,7 @@ public interface Rados extends Library {
 
     void rados_version(IntByReference major, IntByReference minor, IntByReference extra);
     int rados_create(PointerByReference cluster, String id);
+    int rados_create2(PointerByReference cluster, String clustername, String name, int flags);
     int rados_conf_read_file(Pointer cluster, String path);
     int rados_conf_set(Pointer cluster, String option, String value);
     int rados_conf_get(Pointer cluster, String option, byte[] buf, int len);
