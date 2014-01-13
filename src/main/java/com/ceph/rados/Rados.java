@@ -54,7 +54,7 @@ public class Rados {
 	 * @param flags Flag options (future use).
 	 */
 
-	public Rados (String clustername, String name, int flags) {
+	public Rados (String clustername, String name, long flags) {
 		PointerByReference clusterPtr = new PointerByReference();
 		rados.rados_create2(clusterPtr, clustername, name, flags);
 		this.clusterPtr = clusterPtr.getValue();
