@@ -16,7 +16,7 @@
  * language governing permissions and limitations under the License.
  */
 
-package com.ceph.rados;
+package com.ceph.rados.exceptions;
 
 public class RadosException extends Exception {
 
@@ -43,6 +43,14 @@ public class RadosException extends Exception {
     public RadosException(String message, int returnValue) {
         super(message + " (" + returnValue + ")");
         this.returnValue = returnValue;
+    }
+
+    /**
+     * @param message the message
+     * @param cause the cause
+     */
+    public RadosException(String message, Throwable cause) {
+        super(message, cause);
     }
 
     /**

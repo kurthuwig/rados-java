@@ -18,18 +18,13 @@
 
 package com.ceph.rbd;
 
-import com.ceph.rbd.Rbd;
-import com.ceph.rbd.RbdImage;
 import com.ceph.rbd.jna.RbdImageInfo;
 import com.ceph.rbd.jna.RbdSnapInfo;
-import com.ceph.rbd.RbdException;
 import com.ceph.rados.Rados;
-import com.ceph.rados.RadosException;
+import com.ceph.rados.exceptions.RadosException;
 import com.ceph.rados.IoCTX;
 import java.io.File;
 import java.util.List;
-import java.util.ArrayList;
-import java.lang.IllegalArgumentException;
 import junit.framework.*;
 import java.security.SecureRandom;
 import java.math.BigInteger;
