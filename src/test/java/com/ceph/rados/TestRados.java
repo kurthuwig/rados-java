@@ -445,7 +445,7 @@ public final class TestRados extends TestCase {
         }
 
         @Override
-        protected void finalize() throws Throwable {
+        public void finalize() throws Throwable {
             assertTrue(Pointer.nativeValue(this.clusterPtr) > 0);
             // System.err.println(String.format("Finalizing with clusterptr: %x, %s", Pointer.nativeValue(this.clusterPtr), this.toString()));
             super.finalize();
