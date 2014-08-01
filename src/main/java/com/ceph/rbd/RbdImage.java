@@ -290,4 +290,11 @@ public class RbdImage {
             throw new RbdException("Failed to resize the RBD image", r);
         }
     }
+    
+    public void flatten() throws RbdException {
+        int r = rbd.rbd_flatten(this.getPointer());
+        if (r < 0) {
+            throw new RbdException("Failed to flatten the RBD image", r);
+        }
+    }
 }
