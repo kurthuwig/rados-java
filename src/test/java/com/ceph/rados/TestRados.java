@@ -20,15 +20,19 @@ package com.ceph.rados;
 
 import com.ceph.rados.Rados;
 import com.ceph.rados.RadosException;
+import com.ceph.rados.ReadOp.ReadResult;
 import com.ceph.rados.jna.RadosClusterInfo;
 import com.ceph.rados.jna.RadosObjectInfo;
 import com.ceph.rados.jna.RadosPoolInfo;
 import com.ceph.rados.IoCTX;
+import com.ceph.rados.ReadOp;
 
 import java.io.File;
 import java.lang.IllegalArgumentException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import junit.framework.*;
@@ -434,6 +438,35 @@ public final class TestRados extends TestCase {
             r.ioCtxDestroy(io);
         } catch (RadosException e) {
             fail(e.getMessage() + ": " + e.getReturnValue());
+        }
+    }
+
+    public void testReadRanges() {
+        try {
+            final String oid = "foobar.txt";
+            final String content = "The quick brown fox jumped over the lazy dog.";
+            final Rados r = new Rados(this.id);
+            r.confReadFile(new File(this.configFile));
+            r.connect();
+            final IoCTX io = r.ioCtxCreate(this.pool);
+            io.write(oid, content);
+            final ReadOp rop = io.readOpCreate();
+            final Map<ReadResult,String> data = new HashMap<>();
+            data.put(rop.queueRead(0, 3), content.substring(0, 0+3)/*The*/);
+            data.put(rop.queueRead(20, 6), content.substring(20,20+6)/*jumped*/);
+            data.put(rop.queueRead(10, 5), content.substring(10,10+5)/*brown*/);
+            rop.operate(oid, 0);
+            for ( Map.Entry<ReadResult,String> e : data.entrySet() ) {
+            	byte[] buf = new byte[(int)e.getKey().getBytesRead()];
+            	e.getKey().getBuffer().get(buf);
+            	assertEquals(e.getValue(), new String(buf,java.nio.charset.StandardCharsets.UTF_8));
+            }
+        }
+        catch (RadosException e) {
+            fail(e.getMessage() + ": " + e.getReturnValue());
+        }
+        catch ( Exception e ) {
+            fail(e.getMessage());
         }
     }
 
