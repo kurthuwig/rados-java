@@ -489,4 +489,12 @@ public class IoCTX {
         }
         return snaps;
     }
+
+    public ReadOp readOpCreate() {
+        return new ReadOp(getPointer(), rados.rados_create_read_op());
+    }
+
+    public void readOpRelease(ReadOp read_op) {
+        rados.rados_release_read_op(read_op.getPointer());
+    }
 }
