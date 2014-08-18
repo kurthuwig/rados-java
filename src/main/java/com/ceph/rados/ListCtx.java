@@ -48,7 +48,7 @@ public class ListCtx {
     /**
      * List a subset of objects in a pool
      *
-     * @return the number of ids get
+     * @return the number of ids get or 0 when the end of the list is reached
      * @throws RadosException
      */
     public int nextObjects() throws RadosException {
@@ -57,7 +57,7 @@ public class ListCtx {
         }
         Pointer entry = new Memory(Pointer.SIZE);
         int i = 0;
-        while (rados.rados_objects_list_next(list.getPointer(0), entry, null) == 0 && i < limit) {
+        while (i < limit && rados.rados_objects_list_next(list.getPointer(0), entry, null) == 0) {
             ids[i] = entry.getPointer(0).getString(0);
             i++;
         }
@@ -73,7 +73,7 @@ public class ListCtx {
      * List a subset of objects in a pool after skipping a set of ids
      *
      * @param skip the number of skipped element
-     * @return the number of ids get
+     * @return the number of ids get or 0 when the end of the list is reached
      * @throws RadosException
      */
     public int nextObjects(long skip) throws RadosException {
@@ -82,11 +82,11 @@ public class ListCtx {
         }
         Pointer entry = new Memory(Pointer.SIZE);
         long j = 0;
-        while (rados.rados_objects_list_next(list.getPointer(0), entry, null) == 0 && j < skip) {
+        while (j < skip && rados.rados_objects_list_next(list.getPointer(0), entry, null) == 0) {
             j++;
         }
         int i = 0;
-        while (rados.rados_objects_list_next(list.getPointer(0), entry, null) == 0 && i < limit) {
+        while (i < limit && rados.rados_objects_list_next(list.getPointer(0), entry, null) == 0) {
             ids[i] = entry.getPointer(0).getString(0);
             i++;
         }
