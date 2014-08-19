@@ -28,8 +28,6 @@ import com.ceph.rados.IoCTX;
 import com.ceph.rados.ReadOp;
 
 import java.io.File;
-import java.lang.IllegalArgumentException;
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -470,6 +468,96 @@ public final class TestRados extends TestCase {
         }
     }
 
+    public void testListPartial() {
+        /**
+         * The object we will write to with the data
+         */
+        Rados r = null;
+        IoCTX io = null;
+        String oid = "rados-java_item_";
+        String content = "junit wrote this ";
+        int nb = 100;
+
+        try {
+            r = new Rados(this.id);
+            r.confReadFile(new File(this.configFile));
+            r.connect();
+            io = r.ioCtxCreate(this.pool);
+            System.out.println("Start");
+            for (int i = 0; i < nb; i++) {
+                byte []bytes = (content + i).getBytes();
+                io.writeFull(oid+i, bytes, bytes.length);
+            }
+
+            String [] allOids = io.listObjects();
+            assertTrue("Global number of items should be " + nb, allOids.length == nb);
+
+            // Check reading all items in 10 parts
+            ListCtx listCtx = io.listObjectsPartial(nb/10);
+            assertTrue("We expect the list to have right now a size of 0", listCtx.size() == 0);
+            int totalRead = 0;
+            int subnb = 0;
+            for (int i = 0; i < 10; i++) {
+                subnb = listCtx.nextObjects();
+                totalRead += subnb;
+                assertTrue("We expect the list to have right now a size of " + (nb / 10), listCtx.size() == nb / 10);
+                assertTrue("We expect to have a correct oid", listCtx.getObjects()[0].startsWith(oid));
+                String []oids = listCtx.getObjects();
+                assertTrue("We expect the subset to have right now a size of " + (nb / 10), oids.length == nb / 10);
+            }
+            subnb = listCtx.nextObjects();
+            assertTrue("We expect the list to have right now a size of " + 0, listCtx.size() == 0);
+            totalRead += subnb;
+            assertTrue("We expect the number of read items to be " + nb, totalRead == nb);
+            listCtx.close();
+
+            // Check reading half items in 5 parts (other half being ignored)
+            listCtx = io.listObjectsPartial(nb/10);
+            assertTrue("We expect the list to have right now a size of 0", listCtx.size() == 0);
+            totalRead = 0;
+            for (int i = 0; i < 5; i++) {
+                subnb = listCtx.nextObjects(nb / 10);
+                totalRead += subnb + (nb / 10);
+                assertTrue("We expect the list to have right now a size of " + (nb / 10), listCtx.size() == nb / 10);
+                assertTrue("We expect to have a correct oid", listCtx.getObjects()[0].startsWith(oid));
+                String []oids = listCtx.getObjects();
+                assertTrue("We expect the subset to have right now a size of " + (nb / 10), oids.length == nb / 10);
+            }
+            subnb = listCtx.nextObjects();
+            assertTrue("We expect the list to have right now a size of " + 0, listCtx.size() == 0);
+            totalRead += subnb;
+            assertTrue("We expect the number of read items to be " + nb, totalRead == nb);
+            listCtx.close();
+
+            // Check reading some items then close and then check listCtx is empty
+            listCtx = io.listObjectsPartial(nb/10);
+            assertTrue("We expect the list to have right now a size of 0", listCtx.size() == 0);
+            totalRead = 0;
+            subnb = listCtx.nextObjects(nb / 10);
+            assertTrue("We expect the list to have right now a size of " + (nb / 10), listCtx.size() == nb / 10);
+            assertTrue("We expect to have a correct oid", listCtx.getObjects()[0].startsWith(oid));
+            listCtx.close();
+            subnb = listCtx.nextObjects();
+            assertTrue("We expect the list to have right now a size of " + 0, listCtx.size() == 0);
+        } catch (RadosException e) {
+            fail(e.getMessage() + ": " + e.getReturnValue());
+        }
+        finally {
+            try {
+                if(r != null) {
+                    if(io != null) {
+                        for (int i = 0; i < nb; i++) {
+                            io.remove(oid+i);
+                        }
+                    }
+                    r.ioCtxDestroy(io);
+                }
+            }
+            catch (RadosException e) {
+            }
+        }
+    }
+
     static class RadosFinalizeTest extends Rados {
 
         public RadosFinalizeTest(String id) {
@@ -478,7 +566,7 @@ public final class TestRados extends TestCase {
         }
 
         @Override
-        protected void finalize() throws Throwable {
+        public void finalize() throws Throwable {
             assertTrue(Pointer.nativeValue(this.clusterPtr) > 0);
             // System.err.println(String.format("Finalizing with clusterptr: %x, %s", Pointer.nativeValue(this.clusterPtr), this.toString()));
             super.finalize();
