@@ -24,6 +24,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.Native;
 import com.sun.jna.Memory;
 import com.sun.jna.ptr.LongByReference;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.lang.IllegalArgumentException;
@@ -143,6 +144,23 @@ public class IoCTX {
         rados.rados_objects_list_close(list.getPointer(0));
 
         return objects.toArray(new String[objects.size()]);
+    }
+
+    /**
+     * List all objects in a pool by piece. Useful if a lot of objects are in the pool and do not
+     * fit in memory through listObjects() method
+     * @param limit
+     * @return a ListCtx from which nextObjects()/nextObjects(skip) and getObjects() could be called
+     * @throws RadosException
+     */
+    public ListCtx listObjectsPartial(int limit) throws RadosException {
+        Pointer list = new Memory(Pointer.SIZE);
+
+        int r = rados.rados_objects_list_open(this.getPointer(), list);
+        if (r < 0) {
+            throw new RadosException("Failed listing all objects", r);
+        }
+        return new ListCtx(limit, list);
     }
 
     /**

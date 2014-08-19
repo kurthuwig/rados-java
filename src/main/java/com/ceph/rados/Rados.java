@@ -242,7 +242,10 @@ public class Rados {
         }
     }
 
-    protected void finalize() throws Throwable {
+    /**
+     * Finalize the Rados connection
+     */
+    public void finalize() throws Throwable {
         rados.rados_shutdown(this.clusterPtr);
         super.finalize();
     }
