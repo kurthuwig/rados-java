@@ -25,6 +25,8 @@ import static com.ceph.rados.Library.rados;
 
 import java.nio.ByteBuffer;
 
+import com.ceph.rados.exceptions.RadosException;
+
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;

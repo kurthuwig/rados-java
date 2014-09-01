@@ -2,6 +2,7 @@
  * RADOS Java - Java bindings for librados
  *
  * Copyright (C) 2013 Wido den Hollander <wido@42on.com>
+ * Copyright (C) 2014 1&1 - Behar Veliqi <behar.veliqi@1und1.de>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with
@@ -18,6 +19,7 @@
 
 package com.ceph.rados;
 
+import com.ceph.rados.exceptions.RadosException;
 import com.ceph.rados.jna.RadosObjectInfo;
 import com.ceph.rados.jna.RadosPoolInfo;
 import com.sun.jna.Pointer;
@@ -28,10 +30,11 @@ import com.sun.jna.ptr.LongByReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.lang.IllegalArgumentException;
+import java.util.concurrent.Callable;
 
 import static com.ceph.rados.Library.rados;
 
-public class IoCTX {
+public class IoCTX extends RadosBase {
 
     private Pointer ioCtxPtr;
 
@@ -74,11 +77,13 @@ public class IoCTX {
      *           The new auid
      * @throws RadosException
      */
-    public void setAuid(long auid) throws RadosException {
-        int r = rados.rados_ioctx_pool_set_auid(this.getPointer(), auid);
-        if (r < 0) {
-            throw new RadosException("Failed to set the auid to " + auid, r);
-        }
+    public void setAuid(final long auid) throws RadosException {
+        handleReturnCode(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return rados.rados_ioctx_pool_set_auid(getPointer(), auid);
+            }
+        }, "Failed to set the auid to %s", auid);
     }
 
     /**
@@ -88,11 +93,15 @@ public class IoCTX {
      * @throws RadosException
      */
     public long getAuid() throws RadosException {
-        LongByReference auid = new LongByReference();
-        int r = rados.rados_ioctx_pool_get_auid(this.getPointer(), auid);
-        if (r < 0) {
-            throw new RadosException("Failed to get the auid", r);
-        }
+        final LongByReference auid = new LongByReference();
+
+        handleReturnCode(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return rados.rados_ioctx_pool_get_auid(getPointer(), auid);
+            }
+        }, "Failed to get the auid");
+
         return auid.getValue();
     }
 
@@ -103,11 +112,13 @@ public class IoCTX {
      * @throws RadosException
      */
     public String getPoolName() throws RadosException {
-        byte[] buf = new byte[1024];
-        int r = rados.rados_ioctx_get_pool_name(this.getPointer(), buf, buf.length);
-        if (r < 0) {
-            throw new RadosException("Failed to get the pool name", r);
-        }
+        final byte[] buf = new byte[1024];
+        handleReturnCode(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return rados.rados_ioctx_get_pool_name(getPointer(), buf, buf.length);
+            }
+        }, "Failed to get the pool name");
         return Native.toString(buf);
     }
 
@@ -130,12 +141,14 @@ public class IoCTX {
     public String[] listObjects() throws RadosException {
         Pointer entry = new Memory(Pointer.SIZE);
         List<String> objects = new ArrayList<String>();
-        Pointer list = new Memory(Pointer.SIZE);
+        final Pointer list = new Memory(Pointer.SIZE);
 
-        int r = rados.rados_objects_list_open(this.getPointer(), list);
-        if (r < 0) {
-            throw new RadosException("Failed listing all objects", r);
-        }
+        handleReturnCode(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return rados.rados_objects_list_open(getPointer(), list);
+            }
+        }, "Failed starting to list all objects");
 
         while (rados.rados_objects_list_next(list.getPointer(0), entry, null) == 0) {
             objects.add(entry.getPointer(0).getString(0));
@@ -174,14 +187,16 @@ public class IoCTX {
      *          The offset when writing
      * @throws RadosException
      */
-    public void write(String oid, byte[] buf, long offset) throws RadosException, IllegalArgumentException {
+    public void write(final String oid, final byte[] buf, final long offset) throws RadosException, IllegalArgumentException {
         if (offset < 0) {
             throw new IllegalArgumentException("Offset shouldn't be a negative value");
         }
-        int r = rados.rados_write(this.getPointer(), oid, buf, buf.length, offset);
-        if (r < 0) {
-            throw new RadosException("Failed writing " + buf.length + " bytes with offset " + offset + " to " + oid, r);
-        }
+        handleReturnCode(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return rados.rados_write(getPointer(), oid, buf, buf.length, offset);
+            }
+        }, "Failed writing %s bytes with offset %s to %s", buf.length, offset, oid);
     }
 
     /**
@@ -209,11 +224,13 @@ public class IoCTX {
      *          The length of the data to write
      * @throws RadosException
      */
-    public void writeFull(String oid, byte[] buf, int len) throws RadosException {
-        int r = rados.rados_write_full(this.getPointer(), oid, buf, len);
-        if (r < 0) {
-            throw new RadosException("Failed writing " + len + " bytes to " + oid, r);
-        }
+    public void writeFull(final String oid, final byte[] buf, final int len) throws RadosException {
+        handleReturnCode(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return rados.rados_write_full(getPointer(), oid, buf, len);
+            }
+        }, "Failed to write %s bytes to %s", len, oid);
     }
 
     /**
@@ -251,11 +268,13 @@ public class IoCTX {
      *          The object to remove
      * @throws RadosException
      */
-    public void remove(String oid) throws RadosException {
-        int r = rados.rados_remove(this.getPointer(), oid);
-        if (r < 0) {
-            throw new RadosException("Failed removing " + oid, r);
-        }
+    public void remove(final String oid) throws RadosException {
+        handleReturnCode(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return rados.rados_remove(getPointer(), oid);
+            }
+        }, "Failed removing object %s", oid);
     }
 
     /**
@@ -270,9 +289,10 @@ public class IoCTX {
      * @param buf
      *          The buffer to store the result
      * @return Number of bytes read or negative on error
-     * @throws IllegalArgumentException
+     * @throws RadosException
      */
-    public int read(String oid, int length, long offset, byte[] buf) throws IllegalArgumentException {
+    public int read(final String oid, final int length, final long offset, final byte[] buf)
+            throws RadosException {
         if (length < 0) {
             throw new IllegalArgumentException("Length shouldn't be a negative value");
         }
@@ -280,7 +300,12 @@ public class IoCTX {
             throw new IllegalArgumentException("Offset shouldn't be a negative value");
         }
 
-        return rados.rados_read(this.getPointer(), oid, buf, length, offset);
+        return handleReturnCode(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return rados.rados_read(getPointer(), oid, buf, length, offset);
+            }
+        }, "Failed to read object %s using offset %s and length %s", oid, offset, length);
     }
 
     /**
@@ -294,14 +319,16 @@ public class IoCTX {
      *          zeroes. If this shrinks the object, the excess data is removed.
      * @throws RadosException
      */
-    public void truncate(String oid, long size) throws RadosException, IllegalArgumentException {
+    public void truncate(final String oid, final long size) throws RadosException {
         if (size < 0) {
             throw new IllegalArgumentException("Size shouldn't be a negative value");
         }
-        int r = rados.rados_trunc(this.getPointer(), oid, size);
-        if (r < 0) {
-            throw new RadosException("Failed resizing " + oid + " to " + size + " bytes", r);
-        }
+        handleReturnCode(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return rados.rados_trunc(getPointer(), oid, size);
+            }
+        }, "Failed resizing objects %s to %s bytes", oid, size);
     }
 
     /**
@@ -327,11 +354,13 @@ public class IoCTX {
      *           The number of bytes to write from buf
      * @throws RadosException
      */
-    public void append(String oid, byte[] buf, int len) throws RadosException {
-        int r = rados.rados_append(this.getPointer(), oid, buf, len);
-        if (r < 0) {
-            throw new RadosException("Failed appending " + len + " bytes to " + oid, r);
-        }
+    public void append(final String oid, final byte[] buf, final int len) throws RadosException {
+        handleReturnCode(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return rados.rados_append(getPointer(), oid, buf, len);
+            }
+        }, "Failed appending %s bytes to object %s", len, oid);
     }
 
     /**
@@ -368,11 +397,13 @@ public class IoCTX {
     *          The amount of bytes to copy
     * @throws RadosException
     */
-    public void clone(String dst, long dst_off, String src, long src_off, long len) throws RadosException {
-        int r = rados.rados_clone_range(this.getPointer(), dst, dst_off, src, src_off, len);
-        if (r < 0) {
-            throw new RadosException("Failed to copy " + len + " bytes from " + src + " to " + dst, r);
-        }
+    public void clone(final String dst, final long dst_off, final String src, final long src_off, final long len) throws RadosException {
+        handleReturnCode(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return rados.rados_clone_range(getPointer(), dst, dst_off, src, src_off, len);
+            }
+        }, "Failed to copy %s bytes from %s to %s", len, src, dst);
     }
 
     /**
@@ -384,13 +415,15 @@ public class IoCTX {
      *           The size and mtime of the object
      * @throws RadosException
      */
-    public RadosObjectInfo stat(String oid) throws RadosException {
-        LongByReference size = new LongByReference();
-        LongByReference mtime = new LongByReference();
-        int r = rados.rados_stat(this.getPointer(), oid, size, mtime);
-        if (r < 0) {
-            throw new RadosException("Failed performing a stat on " + oid, r);
-        }
+    public RadosObjectInfo stat(final String oid) throws RadosException {
+        final LongByReference size = new LongByReference();
+        final LongByReference mtime = new LongByReference();
+        handleReturnCode(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return rados.rados_stat(getPointer(), oid, size, mtime);
+            }
+        }, "Failed performing a stat on object %s", oid);
         return new RadosObjectInfo(oid, size.getValue(), mtime.getValue());
     }
 
@@ -401,11 +434,13 @@ public class IoCTX {
      * @throws RadosException
      */
     public RadosPoolInfo poolStat() throws RadosException {
-        RadosPoolInfo result = new RadosPoolInfo();
-        int r = rados.rados_ioctx_pool_stat(this.getPointer(), result);
-        if (r < 0) {
-            throw new RadosException("Failed retrieving the pool stats", r);
-        }
+        final RadosPoolInfo result = new RadosPoolInfo();
+        handleReturnCode(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return rados.rados_ioctx_pool_stat(getPointer(), result);
+            }
+        }, "Failed retrieving the pool stats");
         return result;
     }
 
@@ -416,11 +451,13 @@ public class IoCTX {
      *           The name of the snapshot
      * @throws RadosException
      */
-    public void snapCreate(String snapname) throws RadosException {
-        int r = rados.rados_ioctx_snap_create(this.getPointer(), snapname);
-        if (r < 0) {
-            throw new RadosException("Failed to create snapshot " + snapname, r);
-        }
+    public void snapCreate(final String snapname) throws RadosException {
+        handleReturnCode(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return rados.rados_ioctx_snap_create(getPointer(), snapname);
+            }
+        }, "Failed to create snapshot %s", snapname);
     }
 
     /**
@@ -430,11 +467,13 @@ public class IoCTX {
      *           The name of the snapshot
      * @throws RadosException
      */
-    public void snapRemove(String snapname) throws RadosException {
-        int r = rados.rados_ioctx_snap_remove(this.getPointer(), snapname);
-        if (r < 0) {
-            throw new RadosException("Failed to remove snapshot " + snapname, r);
-        }
+    public void snapRemove(final String snapname) throws RadosException {
+        handleReturnCode(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return rados.rados_ioctx_snap_remove(getPointer(), snapname);
+            }
+        }, "Failed to remove snapshot %s", snapname);
     }
 
     /**
@@ -445,12 +484,14 @@ public class IoCTX {
      * @return long
      * @throws RadosException
      */
-    public long snapLookup(String snapname) throws RadosException {
-        LongByReference id = new LongByReference();
-        int r = rados.rados_ioctx_snap_lookup(this.getPointer(), snapname, id);
-        if (r < 0) {
-            throw new RadosException("Failed to lookup the ID of snapshot " + snapname, r);
-        }
+    public long snapLookup(final String snapname) throws RadosException {
+        final LongByReference id = new LongByReference();
+        handleReturnCode(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return rados.rados_ioctx_snap_lookup(getPointer(), snapname, id);
+            }
+        }, "Failed to lookup the ID of snapshot %s", snapname);
         return id.getValue();
     }
 
@@ -462,12 +503,14 @@ public class IoCTX {
      * @return String
      * @throws RadosException
      */
-    public String snapGetName(long id) throws RadosException {
-        byte[] buf = new byte[512];
-        int r = rados.rados_ioctx_snap_get_name(this.getPointer(), id, buf, buf.length);
-        if (r < 0) {
-            throw new RadosException("Failed to lookup the name of snapshot " + id, r);
-        }
+    public String snapGetName(final long id) throws RadosException {
+        final byte[] buf = new byte[512];
+        handleReturnCode(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return rados.rados_ioctx_snap_get_name(getPointer(), id, buf, buf.length);
+            }
+        }, "Failed to lookup the name of snapshot %s", id);
         return new String(buf).trim();
     }
 
@@ -479,12 +522,14 @@ public class IoCTX {
      * @return long
      * @throws RadosException
      */
-    public long snapGetStamp(long id) throws RadosException {
-        LongByReference time = new LongByReference();
-        int r = rados.rados_ioctx_snap_get_stamp(this.getPointer(), id, time);
-        if (r < 0) {
-            throw new RadosException("Failed to retrieve the timestamp of snapshot " + id, r);
-        }
+    public long snapGetStamp(final long id) throws RadosException {
+        final LongByReference time = new LongByReference();
+        handleReturnCode(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return rados.rados_ioctx_snap_get_stamp(getPointer(), id, time);
+            }
+        }, "Failed to retrieve the timestamp of snapshot %s", id);
         return time.getValue();
     }
 
@@ -495,15 +540,18 @@ public class IoCTX {
      * @throws RadosException
      */
     public Long[] snapList() throws RadosException {
-        byte[] buf = new byte[512];
-        int r = rados.rados_ioctx_snap_list(this.getPointer(), buf, buf.length);
-        if (r < 0) {
-            throw new RadosException("Failed to list all snapshots", r);
-        }
+        final byte[] buf = new byte[512];
 
-        Long[] snaps = new Long[r];
-        for (int i = 0; i < r; i++) {
-            snaps[i] = new Long(buf[i]);
+        final Integer result = handleReturnCode(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return rados.rados_ioctx_snap_list(getPointer(), buf, buf.length);
+            }
+        }, "Failed to list all snapshots");
+
+        Long[] snaps = new Long[result];
+        for (int i = 0; i < result; i++) {
+            snaps[i] = (long) buf[i];
         }
         return snaps;
     }

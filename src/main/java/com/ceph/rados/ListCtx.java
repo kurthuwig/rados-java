@@ -20,6 +20,8 @@ package com.ceph.rados;
 
 import java.util.Arrays;
 
+import com.ceph.rados.exceptions.RadosException;
+
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 
