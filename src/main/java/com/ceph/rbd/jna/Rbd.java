@@ -56,4 +56,5 @@ public interface Rbd extends Library {
     int rbd_read(Pointer image, long offset, int length, byte[] buffer);
     int rbd_copy2(Pointer source_image, Pointer dest_image);
     int rbd_resize(Pointer source_image, long size);
+    int rbd_flatten(Pointer image);
 }
