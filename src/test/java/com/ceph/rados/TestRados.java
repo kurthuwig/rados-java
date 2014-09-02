@@ -20,7 +20,6 @@
 package com.ceph.rados;
 
 import com.ceph.rados.Rados;
-import com.ceph.rados.RadosException;
 import com.ceph.rados.ReadOp.ReadResult;
 import com.ceph.rados.jna.RadosClusterInfo;
 import com.ceph.rados.jna.RadosObjectInfo;
@@ -47,6 +46,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public final class TestRados {
 
@@ -324,12 +324,8 @@ public final class TestRados {
         try {
             final String oid = "foobar.txt";
             final String content = "The quick brown fox jumped over the lazy dog.";
-            final Rados r = new Rados(this.id);
-            r.confReadFile(new File(this.configFile));
-            r.connect();
-            final IoCTX io = r.ioCtxCreate(this.pool);
-            io.write(oid, content);
-            final ReadOp rop = io.readOpCreate();
+            ioctx.write(oid, content);
+            final ReadOp rop = ioctx.readOpCreate();
             final Map<ReadResult,String> data = new HashMap<>();
             data.put(rop.queueRead(0, 3), content.substring(0, 0+3)/*The*/);
             data.put(rop.queueRead(20, 6), content.substring(20,20+6)/*jumped*/);
@@ -360,21 +356,17 @@ public final class TestRados {
         int nb = 100;
 
         try {
-            r = new Rados(this.id);
-            r.confReadFile(new File(this.configFile));
-            r.connect();
-            io = r.ioCtxCreate(this.pool);
             System.out.println("Start");
             for (int i = 0; i < nb; i++) {
                 byte []bytes = (content + i).getBytes();
-                io.writeFull(oid+i, bytes, bytes.length);
+                ioctx.writeFull(oid+i, bytes, bytes.length);
             }
 
-            String [] allOids = io.listObjects();
+            String [] allOids = ioctx.listObjects();
             assertTrue("Global number of items should be " + nb, allOids.length == nb);
 
             // Check reading all items in 10 parts
-            ListCtx listCtx = io.listObjectsPartial(nb/10);
+            ListCtx listCtx = ioctx.listObjectsPartial(nb/10);
             assertTrue("We expect the list to have right now a size of 0", listCtx.size() == 0);
             int totalRead = 0;
             int subnb = 0;
@@ -393,7 +385,7 @@ public final class TestRados {
             listCtx.close();
 
             // Check reading half items in 5 parts (other half being ignored)
-            listCtx = io.listObjectsPartial(nb/10);
+            listCtx = ioctx.listObjectsPartial(nb/10);
             assertTrue("We expect the list to have right now a size of 0", listCtx.size() == 0);
             totalRead = 0;
             for (int i = 0; i < 5; i++) {
@@ -411,7 +403,7 @@ public final class TestRados {
             listCtx.close();
 
             // Check reading some items then close and then check listCtx is empty
-            listCtx = io.listObjectsPartial(nb/10);
+            listCtx = ioctx.listObjectsPartial(nb/10);
             assertTrue("We expect the list to have right now a size of 0", listCtx.size() == 0);
             totalRead = 0;
             subnb = listCtx.nextObjects(nb / 10);
@@ -426,12 +418,11 @@ public final class TestRados {
         finally {
             try {
                 if(r != null) {
-                    if(io != null) {
+                    if(ioctx != null) {
                         for (int i = 0; i < nb; i++) {
-                            io.remove(oid+i);
+                            ioctx.remove(oid+i);
                         }
                     }
-                    r.ioCtxDestroy(io);
                 }
             }
             catch (RadosException e) {
@@ -447,7 +438,7 @@ public final class TestRados {
         }
 
         @Override
-        protected void finalize() throws Throwable {
+        public void finalize() throws Throwable {
             assertTrue(Pointer.nativeValue(clusterPtr) > 0);
             // System.err.println(String.format("Finalizing with clusterptr: %x, %s", Pointer.nativeValue(this.clusterPtr), this.toString()));
             super.finalize();
