@@ -19,17 +19,12 @@
 
 package com.ceph.rados;
 
-import com.ceph.rados.Rados;
 import com.ceph.rados.ReadOp.ReadResult;
-import com.ceph.rados.jna.RadosClusterInfo;
-import com.ceph.rados.jna.RadosObjectInfo;
-import com.ceph.rados.jna.RadosPoolInfo;
-import com.ceph.rados.IoCTX;
-import com.ceph.rados.ReadOp;
 import com.ceph.rados.exceptions.RadosException;
 import com.ceph.rados.jna.RadosClusterInfo;
 import com.ceph.rados.jna.RadosObjectInfo;
 import com.ceph.rados.jna.RadosPoolInfo;
+import com.sun.jna.Pointer;
 
 import java.io.File;
 import java.util.Arrays;
@@ -37,7 +32,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import com.sun.jna.Pointer;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -265,6 +259,25 @@ public final class TestRados {
             assertEquals("The size doesn't match after the smaller writeFull", 4, ioctx.stat(oid).getSize());
 
             verifyDocument(oid, Arrays.copyOf(content, 4));
+        } finally {
+            cleanupObject(rados, ioctx, oid);
+        }
+    }
+
+    @Test
+    public void testIoCtxXAttrOp() throws RadosException {
+        String oid = "rados-java_xattr";
+        String key = "xattr";
+        String value = "bala";
+        byte[] content = "junit wrote this".getBytes();
+
+        try {
+            // object must be exists, so we can read/write xattr
+            ioctx.writeFull(oid, content, content.length);
+
+            ioctx.setXAttr(oid, key, value);
+            assertEquals(ioctx.getXAttr(oid, key), value);
+            ioctx.rmXAttr(oid, key);
         } finally {
             cleanupObject(rados, ioctx, oid);
         }
