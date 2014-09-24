@@ -4,3 +4,8 @@ ceph.conf
 keyring.*
 target
 *.iml
+/.settings/
+/ceph/
+/.classpath
+/.project
+/bin/
