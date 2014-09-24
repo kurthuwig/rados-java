@@ -29,12 +29,13 @@ import com.sun.jna.ptr.LongByReference;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.lang.IllegalArgumentException;
 import java.util.concurrent.Callable;
 
 import static com.ceph.rados.Library.rados;
 
 public class IoCTX extends RadosBase {
+
+    private static final int    EXT_ATTR_MAX_LEN = 4096;
 
     private Pointer ioCtxPtr;
 
@@ -563,4 +564,79 @@ public class IoCTX extends RadosBase {
     public void readOpRelease(ReadOp read_op) {
         rados.rados_release_read_op(read_op.getPointer());
     }
+
+
+    /**
+     * Get the value of an extended attribute on an object.
+     * 
+     * @param oid
+     *          The name of the object
+     * @param xattrName
+     *          The name of the extended attribute
+     * @return
+     * 		The value of the extended attribute
+     * @throws RadosException
+     * 		on failure -- common error codes:
+     * 		-34 (ERANGE)  :	value exceeds buffer
+     * 		-61 (ENODATA) :	no such attribute
+     */
+    public String getExtentedAttribute(final String oid, final String xattrName) throws RadosException {
+        final byte[] buf = new byte[EXT_ATTR_MAX_LEN];
+        handleReturnCode(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return rados.rados_getxattr(getPointer(), oid, xattrName, buf, buf.length);
+            }
+        }, "Failed to get extended attribute %s on %s", xattrName, oid);
+        // else...
+        return  Native.toString(buf);
+    }
+
+    /**
+     * Set an extended attribute on an object.
+     * 
+     * @param oid
+     *          The name of the object
+     * @param xattrName
+     *          The name of the extended attribute
+     * @param val
+     * 		The value of the extended attribute
+     * @throws IllegalArgumentException
+     * 		attribute value is too long
+     * @throws RadosException
+     * 		on failure
+     */
+    public void setExtentedAttribute(final String oid, final String xattrName, String val) throws IllegalArgumentException, RadosException {
+        final byte[] buf = Native.toByteArray(val);
+        if (buf.length > EXT_ATTR_MAX_LEN) {
+            throw new IllegalArgumentException( "Length of attribute value must not exceed " + EXT_ATTR_MAX_LEN);
+        }
+        // else...
+        handleReturnCode(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return rados.rados_setxattr(getPointer(), oid, xattrName, buf, buf.length);
+            }
+        }, "Failed to set extended attribute %s on %s", xattrName, oid);
+    }
+
+    /**
+     * Delete an extended attribute from an object.
+     * 
+     * @param oid
+     *          The name of the object
+     * @param xattrName
+     *          The name of the extended attribute
+     * @throws RadosException
+     * 		on failure
+     */
+    public void removeExtentedAttribute(final String oid, final String xattrName) throws RadosException {
+        handleReturnCode(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return rados.rados_rmxattr(getPointer(), oid, xattrName);
+            }
+        }, "Failed to remove extended attribute %s from %s", xattrName, oid);
+   }
+
 }
