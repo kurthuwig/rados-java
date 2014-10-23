@@ -178,25 +178,27 @@ public class Rbd {
      * @return String[]
      * @throws RbdException
      */
-    public String[] list() throws RbdException {
-        IntByReference size = new IntByReference(1024);
-        byte[] names;
-        int r;
+	public String[] list() throws RbdException {
+		int initialBufferSize = 1024;
+		IntByReference sizePointer = new IntByReference(initialBufferSize);
+		byte[] names = new byte[sizePointer.getValue()];
 
-        while (true) {
-            names = new byte[size.getValue()];
-            r = rbd.rbd_list(this.io, names, size);
-            if (r >= 0) {
-                break;
-            }
+		int r = rbd.rbd_list(this.io, names, sizePointer);
+		if (r < 0) {
+			throw new RbdException("Failed to list RBD images", r);
+		}
 
-            /* -34 == ERANGE */
-            if (r != -34) {
-                throw new RbdException("Failed listing the RBD images", r);
-            }
-        }
-        return Native.toString(names).split("\0");
-    }
+		if (r > initialBufferSize) {// If the buffers were not large enough to transport all names
+			sizePointer = new IntByReference(r);
+			names = new byte[sizePointer.getValue()];
+			r = rbd.rbd_list(this.io, names, sizePointer);
+			if (r < 0) {
+				throw new RbdException("Failed to list RBD images", r);
+			}
+		}
+
+		return new String(names).split("\0");
+	}
 
     /**
      * Open a RBD image
