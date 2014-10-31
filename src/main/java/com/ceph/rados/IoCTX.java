@@ -22,19 +22,19 @@ package com.ceph.rados;
 import com.ceph.rados.exceptions.RadosException;
 import com.ceph.rados.jna.RadosObjectInfo;
 import com.ceph.rados.jna.RadosPoolInfo;
-import com.sun.jna.Pointer;
-import com.sun.jna.Native;
 import com.sun.jna.Memory;
+import com.sun.jna.Native;
+import com.sun.jna.Pointer;
 import com.sun.jna.ptr.LongByReference;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.lang.IllegalArgumentException;
 import java.util.concurrent.Callable;
 
 import static com.ceph.rados.Library.rados;
 
 public class IoCTX extends RadosBase {
+    private static final int MAX_ATTR_VALUE_SIZE = 256;
 
     private Pointer ioCtxPtr;
 
@@ -329,6 +329,64 @@ public class IoCTX extends RadosBase {
                 return rados.rados_trunc(getPointer(), oid, size);
             }
         }, "Failed resizing objects %s to %s bytes", oid, size);
+    }
+
+    /**
+     * Set an extended attribute on an object.
+     * @param oid The name of the object
+     * @param name which extend attribute to write
+     * @param value what to store in the xattr
+     * @throws RadosException
+     */
+    public void setXAttr(final String oid, final String name, String value) throws RadosException {
+        final byte[] buf = Native.toByteArray(value);
+        if (buf.length > MAX_ATTR_VALUE_SIZE) {
+            throw new IllegalArgumentException(String.format("value can not " +
+                    "long than %d bytes", MAX_ATTR_VALUE_SIZE));
+        }
+
+        handleReturnCode(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return rados.rados_setxattr(getPointer(), oid, name, buf,
+                        buf.length);
+            }
+        }, "failed set xattr %s for %s", name, oid);
+    }
+
+    /**
+     * Get the value of an extend attribute on an object.
+     * @param oid The name of the object
+     * @param name which extend attribute to read
+     * @return value of attribute
+     * @throws RadosException
+     */
+    public String getXAttr(final String oid, final String name) throws RadosException {
+        final byte[] buf = new byte[MAX_ATTR_VALUE_SIZE];
+        handleReturnCode(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return rados.rados_getxattr(getPointer(), oid, name, buf,
+                        buf.length);
+            }
+        }, "Failed get xattr %s for %s", name, oid);
+
+        return Native.toString(buf);
+    }
+
+    /**
+     * Delete an extended attribute from an object
+     * @param oid The name of the object
+     * @param name which extend attribute to delet
+     * @throws RadosException
+     */
+    public void rmXAttr(final String oid, final String name) throws RadosException {
+        handleReturnCode(new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return rados.rados_rmxattr(getPointer(), oid, name);
+            }
+        }, "Failed rm xattr %s for %s", name, oid);
     }
 
     /**
