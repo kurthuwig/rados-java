@@ -26,6 +26,7 @@ import com.ceph.rados.jna.RadosObjectInfo;
 import com.ceph.rados.jna.RadosPoolInfo;
 import com.ceph.rados.IoCTX;
 import com.ceph.rados.ReadOp;
+import com.ceph.rados.exceptions.ErrorCode;
 import com.ceph.rados.exceptions.RadosException;
 import com.ceph.rados.jna.RadosClusterInfo;
 import com.ceph.rados.jna.RadosObjectInfo;
@@ -38,6 +39,7 @@ import java.util.Map;
 import java.util.Random;
 
 import com.sun.jna.Pointer;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -427,6 +429,45 @@ public final class TestRados {
             }
             catch (RadosException e) {
             }
+        }
+    }
+
+    /**
+     * This test sets an extended attribute on an object which is thereby automatically created
+     * with a size of 0 bytes.  Afterwards the attribute's value is verified and the attribute
+     * removed from the object.
+     */
+    @Test
+    public void testIoCtxSetGetRemoveExtentedAttribute() throws Exception {
+        String oid = "rados-java-w/ext.attributes";      // The object we will write to with the data.
+        String xattrName = "testAttribute";              // Name of the object's extended attribute we will set.
+        String xattrData = "testValue";                  // The data/value of the extended attribute.
+        try {
+            // create object (if it doesn't exist) and set extended attribute
+            ioctx.setExtentedAttribute(oid, xattrName, xattrData);
+
+            // try to read the attribute's value
+            String readAttributeValue = ioctx.getExtentedAttribute(oid, xattrName);
+            assertEquals("The extended attribute data that was read is different from what was set: ", xattrData, readAttributeValue);
+
+            // remove the extended attribute from the object
+            ioctx.removeExtentedAttribute(oid, xattrName);
+
+            // verify that the attribute doesn't exist anymore
+            try {
+                readAttributeValue = ioctx.getExtentedAttribute(oid, xattrName);
+                fail("Ext. attribute '" + xattrName + "' should have been removed from object '" + oid
+                        + "' so RadosException with error code " + ErrorCode.ENODATA + " is expected.");
+            }
+            catch (RadosException e) {
+                assertEquals("We didn't get the expected error code after trying to access non-existent attribute: ",
+                        ErrorCode.ENODATA.getErrorCode(), e.getReturnValue());
+            }
+        } catch (RadosException e) {
+            fail(e.getMessage() + ": " + e.getReturnValue());
+        }
+        finally {
+            cleanupObject(rados, ioctx, oid);
         }
     }
 
