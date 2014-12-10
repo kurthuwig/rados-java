@@ -20,12 +20,15 @@ package com.ceph.rados.jna;
 
 import java.nio.ByteBuffer;
 
+import com.ceph.rados.jna.RadosClusterInfo;
+import com.ceph.rados.jna.RadosPoolInfo;
+
 import com.sun.jna.Library;
 import com.sun.jna.Native;
-import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.PointerByReference;
+import com.sun.jna.Pointer;
 
 public interface Rados extends Library {
 
@@ -72,9 +75,6 @@ public interface Rados extends Library {
     int rados_read(Pointer ioctx, String oid, byte[] buf, int len, long off);
     int rados_remove(Pointer ioctx, String oid);
     int rados_trunc(Pointer ioctx, String oid, long size);
-    int rados_getxattr(Pointer ioctx, String oid, String name, byte[] buf, int len);
-    int rados_setxattr(Pointer ioctx, String oid, String name, byte[] buf, int len);
-    int rados_rmxattr(Pointer ioctx, String oid, String name);
     int rados_clone_range(Pointer ioctx, String dst, long dst_off, String src, long src_off, long len);
     int rados_stat(Pointer ioctxo, String oi, LongByReference size, LongByReference mtime);
     Pointer rados_create_read_op();
