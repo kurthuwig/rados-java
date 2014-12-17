@@ -24,6 +24,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.PointerByReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -310,10 +311,10 @@ public class RbdImage {
 	 */
 	public List<String> listChildren(String snapname) throws RbdException {
 		// Set the snapshot to read from
-		int r = rbd.rbd_snap_set(this.getPointer(), snapname);
+		long r = rbd.rbd_snap_set(this.getPointer(), snapname);
 
 		if (r < 0) {
-			throw new RbdException("Failed to set snapshot name to " + snapname + ". Return code: " + r, r);
+			throw new RbdException("Failed to set snapshot name to " + snapname + ". Return code: " + r);
 		}
 
 		try { //try-catch block for un-setting snapshot
@@ -324,17 +325,17 @@ public class RbdImage {
 
 			int initialBufferSize = 1024;
 
-			IntByReference poolBufferSize = new IntByReference(initialBufferSize);
-			IntByReference imageBufferSize = new IntByReference(initialBufferSize);
+			LongByReference poolBufferSize = new LongByReference(initialBufferSize);
+			LongByReference imageBufferSize = new LongByReference(initialBufferSize);
 
-			byte pools[] = new byte[poolBufferSize.getValue()];
-			byte images[] = new byte[imageBufferSize.getValue()];
+			byte pools[] = new byte[initialBufferSize];
+			byte images[] = new byte[initialBufferSize];
 
 			// List the children of the snapshot.
 			r = rbd.rbd_list_children(this.getPointer(), pools, poolBufferSize, images, imageBufferSize);
 
-			if (r < 0 && r != -34) { // -34 (-ERANGE) may be returned if the byte buffers are not big enough
-				throw new RbdException("Failed to list snap children. Return code: " + r, r);
+			if (r < 0 && r != -34) { // -34 (-ERANGE) is returned if the byte buffers are not big enough
+				throw new RbdException("Failed to list snap children. Return code: " + r);
 			}
 
 			List<String> poolImageList = new ArrayList<String>();
@@ -343,18 +344,18 @@ public class RbdImage {
 				// Nothing to do here, the snapshot may not have any children
 			} else {
 
-				if (poolBufferSize.getValue() > initialBufferSize || imageBufferSize.getValue() > initialBufferSize) {
+				if (r == -34 || poolBufferSize.getValue() > initialBufferSize || imageBufferSize.getValue() > initialBufferSize) {
 					// Buffers were not large enough to transport all names. poolLength and imageLength should now contain correct values
 
 					// Create byte buffers with correct sizes
-					pools = new byte[poolBufferSize.getValue()];
-					images = new byte[imageBufferSize.getValue()];
+					pools = new byte[(int) poolBufferSize.getValue()];
+					images = new byte[(int) imageBufferSize.getValue()];
 
 					// List the children of the snapshot
 					r = rbd.rbd_list_children(this.getPointer(), pools, poolBufferSize, images, imageBufferSize);
 
 					if (r < 0) {
-						throw new RbdException("Failed to list snap children. Return code: " + r, r);
+						throw new RbdException("Failed to list snap children. Return code: " + r);
 					}
 				} else {
 					// Nothing to do here, the buffers were large enough to transport all names

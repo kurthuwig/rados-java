@@ -480,7 +480,17 @@ public final class TestRbd extends TestCase {
 				rbd.create(testImage + i, imageSize);
 			}
 
+			// List images without providing initial buffer size
 			List<String> imageList = Arrays.asList(rbd.list());
+			assertTrue("There were less than " + imageCount + " images in the pool", imageList.size() >= imageCount);
+
+			for (int i = 1; i <= imageCount; i++) {
+				assertTrue("Pool does not contain image testimage" + i, imageList.contains(testImage + i));
+			}
+			
+			// List images and provide initial buffer size
+			imageList = null;
+			imageList = Arrays.asList(rbd.list(testImage.length()));
 			assertTrue("There were less than " + imageCount + " images in the pool", imageList.size() >= imageCount);
 
 			for (int i = 1; i <= imageCount; i++) {
@@ -498,7 +508,7 @@ public final class TestRbd extends TestCase {
 			fail(e.getMessage() + ": " + e.getReturnValue());
 		}
 	}
-
+	
 	public void testListChildren() {
 		try {
 			Rados r = new Rados(this.id);
