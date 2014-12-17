@@ -22,6 +22,7 @@ import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.PointerByReference;
 
 public interface Rbd extends Library {
@@ -32,7 +33,7 @@ public interface Rbd extends Library {
     int rbd_create(Pointer io, String name, long size, IntByReference order);
     int rbd_create2(Pointer io, String name, long size, long features, IntByReference order);
     int rbd_create3(Pointer io, String name, long size, long features, IntByReference order, long stripe_unit, long stripe_count);
-    int rbd_list(Pointer io, byte[] names, IntByReference size);
+    int rbd_list(Pointer io, byte[] names, LongByReference size);
     int rbd_remove(Pointer io, String name);
     int rbd_rename(Pointer io, String srcname, String destname);
     int rbd_open_read_only(Pointer io, String name, Pointer image, String snap_name);
@@ -58,5 +59,5 @@ public interface Rbd extends Library {
     int rbd_resize(Pointer source_image, long size);
     int rbd_flatten(Pointer image);
     int rbd_snap_set(Pointer image, String snapname);
-    int rbd_list_children(Pointer image, byte[] pools, IntByReference pools_len, byte[] images, IntByReference images_len);
+    long rbd_list_children(Pointer image, byte[] pools, LongByReference pools_len, byte[] images, LongByReference images_len);
 }

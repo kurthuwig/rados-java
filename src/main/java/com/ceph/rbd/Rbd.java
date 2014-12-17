@@ -20,6 +20,7 @@ package com.ceph.rbd;
 
 import com.ceph.rados.IoCTX;
 import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.Pointer;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
@@ -180,17 +181,30 @@ public class Rbd {
      */
 	public String[] list() throws RbdException {
 		int initialBufferSize = 1024;
-		IntByReference sizePointer = new IntByReference(initialBufferSize);
-		byte[] names = new byte[sizePointer.getValue()];
+		return list(initialBufferSize);
+	}
+	
+	/**
+	 * List all RBD images in this pool
+	 * 
+	 * @param initialBufferSize
+	 * 		   Initial size of the byte buffer holding image names
+	 * @return String[]
+	 *         Array of image names in the pool
+	 * @throws RbdException
+	 */
+	public String[] list(int initialBufferSize) throws RbdException {
+		LongByReference sizePointer = new LongByReference(initialBufferSize);
+		byte[] names = new byte[initialBufferSize];
 
 		int r = rbd.rbd_list(this.io, names, sizePointer);
-		if (r < 0) {
+		if (r < 0 && r != -34) { 
 			throw new RbdException("Failed to list RBD images", r);
 		}
-
-		if (r > initialBufferSize) {// If the buffers were not large enough to transport all names
-			sizePointer = new IntByReference(r);
-			names = new byte[sizePointer.getValue()];
+		
+		// -34 (-ERANGE) is returned if the byte buffers are not big enough
+		if (r == -34 || sizePointer.getValue() > initialBufferSize) {
+			names = new byte[(int) sizePointer.getValue()];
 			r = rbd.rbd_list(this.io, names, sizePointer);
 			if (r < 0) {
 				throw new RbdException("Failed to list RBD images", r);
