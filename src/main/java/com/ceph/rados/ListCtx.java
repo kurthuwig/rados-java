@@ -115,9 +115,6 @@ public class ListCtx {
      * @return the Array of ids (limit by size and by the last call to nextObjects)
      */
     public String[] getObjects() {
-        if (list == null) {
-            return null;
-        }
         return Arrays.copyOf(this.ids, this.size);
     }
     /**
