@@ -160,6 +160,16 @@ public enum ErrorCode {
         this.errorMessage = errorMessage;
     }
 
+
+    public int getErrorCode() {
+        return errorCode;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+
     /**
      * @param errorCode the error code
      * @return appropriate name of the error depending on the code
