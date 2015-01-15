@@ -10,7 +10,9 @@ you can use them on any system where JNA and librados are present.
 ## Building
 The bindings can be build using Ant, simply run:
 
+```bash
 $ ant jar
+```
 
 That will produce a .jar file
 
@@ -23,10 +25,14 @@ $ ant test
 
 # Maven
 ## Building
+```bash
 $ mvn clean install (-DskipTests)
+```
 
 ## Tests
+```bash
 $ mvn test
+```
 
 # Unit Tests
 The tests require a running Ceph cluster. By default it will read /etc/ceph/ceph.conf
