@@ -1,14 +1,11 @@
+# RADOS Java
 These are Java bindings for librados (C) which use JNA.
 
 By using JNA there is no need for building the bindings against any header
 you can use them on any system where JNA and librados are present.
 
-___________________________________________________________________________________
-
-USING ANT
-___________________________________________________________________________________
-
-** Building **
+# Ant
+## Building
 The bindings can be build using Ant, simply run:
 
 $ ant jar
@@ -17,27 +14,19 @@ That will produce a .jar file
 
 N.B.: You need to make sure jna.jar is present in /usr/share/java
 
-** Tests **
+## Tests
 Tests are available under src/test/java and can be run with Ant as well:
 
 $ ant test
 
+# Maven
+## Building
+$ mvn clean install (-DskipTests)
 
-___________________________________________________________________________________
+## Tests
+$ mvn test
 
-USING MAVEN
-___________________________________________________________________________________
-
-** Building **
-
-mvn clean package (-DskipTests)
-
-** Tests **
-
-mvn clean test
-
-
-
+# Unit Tests
 The tests require a running Ceph cluster. By default it will read /etc/ceph/ceph.conf
 and use "admin" as a cephx id.
 
