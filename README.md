@@ -20,8 +20,9 @@ N.B.: You need to make sure jna.jar is present in /usr/share/java
 
 ## Tests
 Tests are available under src/test/java and can be run with Ant as well:
-
+```bash
 $ ant test
+```
 
 # Maven
 ## Building
